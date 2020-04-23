@@ -60,8 +60,9 @@ export default class App extends Component {
 		super(props);
 		this.state = {
 			settings: {
-				free_per_day: 13,	// Minimalna przerwa między podjęciem następnej zmiany
-				free_per_weekfree_per_week: 35, // Minimalna przerwa tygodniowa
+				max_daily_time: 12,	// Maksymalny dzienny czas pracy
+				daily_break: 13, // Minimalna przerwa miedzy kolejnymi zmianami
+				weaky_break: 35, // minimalna przerwa w tygodniu
 				free_indexs: [ // Wpisy które ujmują 8h pracy
 					"NP", "SP", "L4", "UW", "DU", "ZZ", "UO"
 				],
