@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 
 const format = require('date-format');
+const moment = require('moment');
+const momentDurationFormatSetup = require("moment-duration-format");
 
 const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 let getDayName = (date) => {
@@ -48,8 +50,8 @@ function TableData(props) {
 	for ( const [i, employee] of props.employees.entries() ) {
 		const tr = []
 
-		tr.push(<th key={ "number-" + employee.id }>{ i + 1 }</th>)
-		tr.push(<th className="border-right" key={ "signature-" + employee.id }>{ employee.signature }</th>)
+		tr.push(<th className="align-middle" key={ "number-" + employee.id }>{ i + 1 }</th>)
+		tr.push(<th className="border-right align-middle" key={ "signature-" + employee.id }>{ employee.signature }</th>)
 
 		for ( const date of props.dates ) {
 			const schedule = props.schedules.find(schedule => { return (
@@ -57,31 +59,72 @@ function TableData(props) {
 				schedule.date == date
 			)});
 
-			let shift = ( schedule ) ? schedule.shift : "";
+			let begin = ( schedule ) ? schedule.begin : "";
+			let end = ( schedule ) ? schedule.end : "";
 
-			let holiday = props.settings.holidays.find( holiday => { return ( holiday.date == date ) });
-			// if ( holiday ) shift = holiday.shift;
+			if ( props.settings.is_absences_layer === true ) {
 
-			// if ( props.settings.free_days[getDayName(date)] && props.settings.free_days[getDayName(date)].permanent ) shift = props.settings.free_days[getDayName(date)].shift;
+			} else if ( props.settings.is_time_layer === true ) {
+				let time = "";
 
-			let tdClassName = "border-right";
-			if ( getDayName(date) == "sun" ) tdClassName += " carrotHR__field--sunday";
-			if ( schedule && schedule.preference ) tdClassName += " carrotHR__field--preference";
-			if ( holiday ) tdClassName += " carrotHR__field--holiday";
+				let tdClassName = "border-right py-1 align-middle";
+				if ( getDayName(date) == "sun" ) tdClassName += " carrotHR__field--sunday";
 
-			let inputDisabled = false;
-			// if ( holiday ) inputDisabled = true;
-			// if ( props.settings.free_days[getDayName(date)] && props.settings.free_days[getDayName(date)].permanent ) inputDisabled = true;
+				let timeValidator = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/;
+				if ( begin && ! ["W", "PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"].includes( begin ) && timeValidator.test(begin) ) {
+					let beginDate = moment(date + " " + begin);
+					let endDate = moment(date + " " + end);
 
-			let inputClassName = "carrotHR__input carrotHR__input--shift form-control";
-			// if ( props.settings.free_days[getDayName(date)] && props.settings.free_days[getDayName(date)].permanent ) inputClassName += " d-none";
-			// if ( props.settings.holidays.find( holiday => { return ( holiday.date == date ) })) inputClassName += " d-none";
+					// let diff = Math.abs(endDate.getTime() - beginDate.getTime());
 
-			tr.push(
-				<td id={employee.id + ":" + date} key={ employee.id + ":" + date} className={ tdClassName }>
-					<input data-date-id={date} data-employee-id={employee.id} className={ inputClassName } onChange={props.onScheduleChange} value={ shift } disabled={ inputDisabled }/>
-				</td>
-			);
+					// if ( diff / 36e5 > 12 ) tdClassName += " carrotHR__field--warning"; // Pracuje za długo
+
+					// moment.duration( endDate.diff( beginDate ) ).asHours();
+
+					time = moment.duration( endDate.diff( beginDate ) ).format("H:mm");
+				} else if ( begin && ["W", "PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"].includes( begin ) ) {
+					time = begin;
+				}
+
+
+
+				let inputClassName = "carrotHR__input carrotHR__input--shift form-control";
+
+
+
+				tr.push(
+					<td id={employee.id + ":" + date} key={ employee.id + ":" + date} className={ tdClassName }>
+						<input data-date-id={date} data-employee-id={employee.id} className={ inputClassName } value={ time } disabled/>
+					</td>
+				);
+			} else {
+				let isBeginProperlyFormated = true;
+				let timeValidator = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/;
+
+				if ( begin && ! ["W", "PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"].includes( begin ) ) {
+					if ( ! timeValidator.test( begin ) ) {
+						isBeginProperlyFormated = false;
+					}
+				}
+
+				let tdClassName = "border-right py-1 align-middle";
+				if ( getDayName(date) == "sun" ) tdClassName += " carrotHR__field--sunday";
+				if ( schedule && schedule.preference ) tdClassName += " carrotHR__field--preference";
+				if ( props.settings.holidays.find( holiday => { return ( holiday.date == date ) }) ) tdClassName += " carrotHR__field--holiday";
+				if ( isBeginProperlyFormated === false ) tdClassName += " carrotHR__field--warning"
+
+				let inputClassName = "carrotHR__input carrotHR__input--shift form-control";
+
+				// <input data-date-id={date} data-employee-id={employee.id} className={ endInputClassName } onChange={ (e) => props.onScheduleChange(e, "end") } value={ end } />
+				tr.push(
+					<td id={employee.id + ":" + date} key={ employee.id + ":" + date} className={ tdClassName }>
+						<input data-date-id={date} data-employee-id={employee.id} className={ inputClassName } onChange={ props.onScheduleBeginChange } value={ begin } />
+						{ ( begin && isBeginProperlyFormated && ! ["W", "PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"].includes( begin ) ) ?
+							<input data-date-id={date} data-employee-id={employee.id} className={ inputClassName } onChange={ props.onScheduleEndChange } value={ end } /> : ""
+						}
+					</td>
+				);
+			}
 		}
 
 		let trClassName = "";
@@ -118,7 +161,7 @@ export default class EmployeesTableManager extends Component {
 					<TableHeader dates={ this.props.dates }/>
 				</thead>
 				<tbody>
-					<TableData settings={ this.props.settings } employees={ this.props.employees } dates={ this.props.dates } schedules={ this.props.schedules } onScheduleChange={this.props.onScheduleChange}/>
+					<TableData settings={ this.props.settings } employees={ this.props.employees } dates={ this.props.dates } schedules={ this.props.schedules } onScheduleBeginChange={this.props.onScheduleBeginChange} onScheduleEndChange={this.props.onScheduleEndChange}/>
 					<TableNewRow dates={ this.props.dates } onNewEmployee={ this.props.onNewEmployee }/>
 				</tbody>
 			</table>

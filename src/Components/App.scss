@@ -95,6 +95,11 @@
 	color: white !important;
 }
 
+.carrotHR__field--warning {
+	background: transparentize($red, .3);
+	color: white !important;
+}
+
 *::-webkit-scrollbar {
   width: 16px;
   height: 16px;
