@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import EmployeesTableManager from './EmployeesTableManager';
 import SettingsManager from './SettingsManager';
+import * as Helpers from'./Helpers.js';
 import './App.scss';
 
 const format = require('date-format');
+const moment = require('moment');
+const momentDurationFormatSetup = require("moment-duration-format");
 
 // + ZROBIONE
 // ~ PRAWIE ZROBIONE
@@ -23,37 +26,6 @@ const format = require('date-format');
 // [ ] TODO 13 : Ujmowanie czasu pracy pracownikom z preferencjami
 
 
-// Returns the name of the day based on a date
-const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-const getDayName = (date) => {
-	let dt = new Date(date);
-	return days[dt.getDay()];
-}
-
-// Working same as Array.prototype.filter, but it's cut filtered elements from orginal array if they satisfy condition in predication
-const select = (arr, predicate) => {
-    if (typeof predicate != "function")
-      	throw new TypeError();
-
-    var selected = arr.filter( x => {
-		return (predicate.call(arr[0], x, arr))
-	})
-
-	for ( const val of selected ) {
-		let i = arr.indexOf( val )
-		arr.splice(i,1)
-	}
-
-    return selected;
-};
-
-// Chunks the array into parts
-const chunk = (arr, size) => Array.from( { length: Math.ceil(arr.length / size) }, (v, i) =>
-	arr.slice(i * size, i * size + size)
-);
-
-// Copies arrays without any references
-const duplicate = (arr) => { return JSON.parse(JSON.stringify(arr)) };
 
 export default class App extends Component {
 	constructor(props) {
@@ -197,6 +169,112 @@ export default class App extends Component {
 		// this.pushSchedule = this.pushSchedule.bind(this);
 	}
 
+	// Tu trzeba będzie zrobić tak żeby sprawdzało tylko dla jednego pracownika bo to szkoda zachodu na niezainteresowanych
+	validateAllSchedules = (employee_id) => {
+
+		// Poprawność leksykalna wpisu
+		const schedules_temp = [ ...this.state.schedules ].filter(schedule => { return ( schedule.employee_id === employee_id ) } );
+		for ( const schedule of schedules_temp ) {
+			schedule.validation.is_valid = true;
+
+			let scheduleBegin = schedule.begin;
+			let scheduleEnd = schedule.end;
+
+			if ( ! ( Helpers.timeValidator( scheduleBegin ) || Helpers.shiftValidator( scheduleBegin ) ) ) {
+				schedule.validation.is_valid = false;
+				schedule.validation.reason = "Nieprawidłowy format czasu."
+			}
+
+			if ( Helpers.timeValidator( scheduleBegin ) && ! Helpers.timeValidator( scheduleEnd ) ) {
+				schedule.validation.is_valid = false;
+				schedule.validation.reason = "Nieprawidłowy format czasu."
+			}
+		}
+
+		// Poprawność czasu pracy
+		// let preventDate = null;
+		// let currentDate = null;
+		// let currentSchedule
+		let preventSchedule = null;
+		let currentSchedule = null;
+		const weeks = Helpers.wodge( [ ...this.state.dates ], 7, 1);
+		for ( const week of weeks ) {
+
+			let isWeeklyBreak = false;
+			let schedulesGap = 0; // To jest potrzebne bo jak jest w tygodniu tylko jedna zmiana nie wyłapie że pozostałe 6 dni zaspokaja przerwe 35h
+			for ( const date of week ) {
+				let isDailyBreak = false; // Przerwa między dniami pracy
+
+				if ( currentSchedule ) {
+					preventSchedule = currentSchedule;
+				}
+
+				currentSchedule = schedules_temp.find(schedule => { return ( schedule.date == date && Helpers.timeValidator( schedule.begin ) && Helpers.timeValidator( schedule.end ) ) } ) || null;
+				if ( currentSchedule == null ) {
+					schedulesGap += 1;
+				} else {
+					schedulesGap = 0;
+				}
+
+				if ( schedulesGap >= 2 ) {
+					isWeeklyBreak = true;
+					schedulesGap = 0;
+				}
+
+				// Walidacja czasu pracy na jednej zmianie
+				if ( currentSchedule ) {
+					let currentScheduleBegin = moment(date + " " + currentSchedule.begin)
+					let currentScheduleEnd = moment(date + " " + currentSchedule.end)
+
+					if ( currentScheduleEnd.diff(currentScheduleBegin) <= 0 ) {
+						currentScheduleEnd.add(1, 'days');
+					}
+
+					let diff = moment.duration( currentScheduleEnd.diff( currentScheduleBegin ) ).asHours();
+					if ( diff - this.state.settings.max_daily_time > 0 ) {
+						currentSchedule.validation.is_valid = false;
+						currentSchedule.validation.reason = "Przekroczono limit czasu pracy.";
+					}
+				}
+
+				// Walidacja między kolejnymi dniami
+				if ( preventSchedule && ( currentSchedule != preventSchedule ) ) { // Wiem że to poroniona akcaj ( currentSchedule != preventSchedule ) ale z racji że w tygodniu musze sprawdzic też 8 dzień to inaczej sie nieda :(
+					let preventScheduleEnd = moment(preventSchedule.date + " " + preventSchedule.end);
+					let currentScheduleBegin;
+					if ( currentSchedule ) {
+						currentScheduleBegin = moment(currentSchedule.date + " " + currentSchedule.begin);
+					} else {
+						currentScheduleBegin = moment(date + " " + "24:00");
+					}
+
+					let diff = moment.duration( currentScheduleBegin.diff( preventScheduleEnd ) ).asHours();
+					if ( diff - this.state.settings.weaky_break >= 0 ) {
+						isWeeklyBreak = true;
+						isDailyBreak = true;
+					} else if ( diff - this.state.settings.daily_break >= 0 ) {
+						isDailyBreak = true;
+					}
+
+					if ( ! isDailyBreak ) {
+						currentSchedule.validation.is_valid = false;
+						currentSchedule.validation.reason = "Brak przerwy 13h.";
+					}
+				}
+			}
+
+			if ( ! isWeeklyBreak ) {
+				for ( const date of week ) {
+					let schedule = schedules_temp.find(schedule => { return ( schedule.date == date ) } ) || null;
+					if ( schedule ) {
+						schedule.validation.is_valid = false;
+						schedule.validation.reason = "Brak przerwy 35h."
+					}
+				}
+			}
+		}
+		this.forceUpdate();
+	}
+
 	handleOnSaveClick() {
 		const element = document.createElement("a");
 		const file = new Blob([JSON.stringify(this.state)], {type: 'application/json'});
@@ -205,6 +283,7 @@ export default class App extends Component {
 		document.body.appendChild(element);
 		element.click();
 	}
+
 
 	handleOnUploadClick() {
 		this.refs.fileUploader.click();
@@ -267,44 +346,55 @@ export default class App extends Component {
 	}
 
 	handleOnScheduleBeginChange(e) {
+		let employee_id = e.target.getAttribute('data-employee-id');
+
 		let schedules_temp = [ ...this.state.schedules ]
 		schedules_temp = schedules_temp.filter(schedule => { return !(
-			schedule.employee_id == e.target.getAttribute('data-employee-id') &&
+			schedule.employee_id == employee_id &&
 			schedule.date == e.target.getAttribute('data-date-id')
 		)});
 
 		let schedule_temp = [ ...this.state.schedules ].find(schedule => { return (
-			schedule.employee_id == e.target.getAttribute('data-employee-id') &&
+			schedule.employee_id == employee_id &&
 			schedule.date == e.target.getAttribute('data-date-id')
 		)});
 
 		if ( e.target.value != "" ) {
 			const schedule = {
-				employee_id: parseInt( e.target.getAttribute('data-employee-id') ),
+				employee_id: parseInt( employee_id ),
 				date: e.target.getAttribute('data-date-id'),
 				begin: e.target.value.toUpperCase(),
 				end: ( schedule_temp ) ? schedule_temp.end : "",
 				preference: true,
+				validation: {
+					is_valid: true,
+					// reason: ""
+				}
 			}
-			this.setState( { schedules: [ ...schedules_temp, schedule ] } );
+			this.setState( { schedules: [ ...schedules_temp, schedule ] }, () => this.validateAllSchedules( parseInt( employee_id ) ) );
 		} else {
-			this.setState( { schedules: [ ...schedules_temp ] } );
+			this.setState( { schedules: [ ...schedules_temp ] }, () => this.validateAllSchedules( parseInt( employee_id ) ) );
 		}
+
+
+
 	}
 
 	handleOnScheduleEndChange(e) {
+		let employee_id = e.target.getAttribute('data-employee-id');
+
 		let schedules_temp = [ ...this.state.schedules ].filter(schedule => { return !(
-			schedule.employee_id == e.target.getAttribute('data-employee-id') &&
+			schedule.employee_id == employee_id &&
 			schedule.date == e.target.getAttribute('data-date-id')
 		)});
 
 		let schedule = [ ...this.state.schedules ].find(schedule => { return (
-			schedule.employee_id == e.target.getAttribute('data-employee-id') &&
+			schedule.employee_id == employee_id &&
 			schedule.date == e.target.getAttribute('data-date-id')
 		)});
 		schedule.end = e.target.value;
 
-		this.setState( { schedules: [ ...schedules_temp, schedule ] } );
+		this.setState( { schedules: [ ...schedules_temp, schedule ] }, () => this.validateAllSchedules( parseInt( employee_id ) ) );
 	}
 
 	// pushSchedule( p_schedule ) { }

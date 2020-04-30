@@ -1,30 +1,9 @@
 import React, { Component } from 'react';
+import * as Helpers from'./Helpers.js';
 
 const format = require('date-format');
 const moment = require('moment');
 const momentDurationFormatSetup = require("moment-duration-format");
-
-const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-let getDayName = (date) => {
-	let dt = new Date(date);
-	return days[dt.getDay()];
-}
-
-const days_PL = ["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"];
-let getPolishDayName = (date) => {
-	let dt = new Date(date);
-	return days_PL[dt.getDay()];
-}
-
-let timeValidator = (time) => {
-	let reg = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/;
-	return reg.test(time);
-}
-
-let shiftValidator = (shift) => {
-	let shifts = ["1", "2", "3", "W", "PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"];
-	return shifts.includes(shift)
-}
 
 export default class EmployeesTableManager extends Component {
 	constructor(props) {
@@ -38,9 +17,26 @@ export default class EmployeesTableManager extends Component {
 		tr.push(<th className="border-right" key="signature-header">Pracownik</th>)
 
 	    for ( const date of this.props.dates ) {
-	      	tr.push(<th data-date={date} key={date} className="border-right text-center p-0"><span class="px-3">{ format.asString('dd.MM', new Date(date)) }</span><hr class="m-0"/><span class="px-3">{ getPolishDayName(date) }</span></th>)
+	      	tr.push(<th data-date={date} key={date} className="border-right text-center p-0"><span class="px-3">{ format.asString('dd.MM', new Date(date)) }</span><hr class="m-0"/><span class="px-3">{ Helpers.getPolishDayName(date) }</span></th>)
 	    }
 	    return ( <tr key="tr-header">{ tr }</tr> )
+	}
+
+	employeeTime = (employee_id, time_contract) => {
+		let calculateTime = (base, div) => {
+			let time = 0;
+			const weeks = Helpers.chunk([...this.props.dates], 7);
+			for ( const week of weeks ) {
+				for ( const date of week ) {
+					let free_day = this.props.settings.free_days[ Helpers.getDayName(date) ];
+					let holiday = this.props.settings.holidays.find( holiday => { return ( holiday.date == date ) } )
+					if ( !free_day && !holiday ) time += 1 * ( base * div);
+				}
+			}
+			return time;
+		}
+		const time = calculateTime(8, time_contract)
+
 	}
 
 	tableData() {
@@ -50,7 +46,7 @@ export default class EmployeesTableManager extends Component {
 			const tr = []
 
 			tr.push(<th className="align-middle" key={ "number-" + employee.id }>{ i + 1 }</th>)
-			tr.push(<th className="border-right align-middle" key={ "signature-" + employee.id }>{ employee.signature }</th>)
+			tr.push(<th className="border-right align-middle" key={ "signature-" + employee.id }>{ employee.signature } { this.employeeTime(employee.id, employee.time_contract) }</th>)
 
 			for ( const date of this.props.dates ) {
 				const schedule = this.props.schedules.find(schedule => { return (
@@ -65,43 +61,32 @@ export default class EmployeesTableManager extends Component {
 				let tdClassName = "border-right py-1 align-middle";
 				let inputClassName = "carrotHR__input carrotHR__input--shift form-control";
 
-				if ( getDayName(date) == "sun" ) tdClassName += " carrotHR__field--sunday";
+				if ( Helpers.getDayName(date) == "sun" ) tdClassName += " carrotHR__field--sunday";
 				if ( schedule && schedule.preference ) tdClassName += " carrotHR__field--preference";
 				if ( this.props.settings.holidays.find( holiday => { return ( holiday.date == date ) }) ) tdClassName += " carrotHR__field--holiday";
-				if ( scheduleBegin && ! timeValidator( scheduleBegin ) && ! shiftValidator( scheduleBegin ) ) {
+
+				if ( schedule && schedule.validation.is_valid === false ) {
 					tdClassName += " carrotHR__field--warning"
-					tdTitle = "\"" + scheduleBegin + "\" nie jest poprawnym wpisem.";
-				}
-				if ( scheduleBegin && timeValidator( scheduleBegin ) && ! timeValidator ( scheduleEnd )) {
-					tdClassName += " carrotHR__field--warning"
-					tdTitle = "\"" + scheduleEnd + "\" nie jest poprawnym wpisem.";
-				}
-
-				let shiftTime = "";
-				if ( ( timeValidator( scheduleBegin ) && timeValidator( scheduleEnd ) ) ) {
-					let scheduleBeginDate = moment(date + " " + scheduleBegin)
-					let scheduleEndDate = moment(date + " " + scheduleEnd)
-
-					if ( scheduleEndDate.diff(scheduleBeginDate) <= 0 ) {
-						scheduleEndDate.add(1, 'days');
-					}
-
-					shiftTime = moment.duration( scheduleEndDate.diff( scheduleBeginDate ) );
-
-					let norm = shiftTime.asHours() - this.props.settings.max_daily_time
-					if ( norm > 0 ) {
-						tdClassName += " carrotHR__field--warning";
-						tdTitle = " Przekroczono normę czasu pracy o " + norm + "h.";
-					}
-
-					shiftTime = shiftTime.format("H:mm");
-				} else if( shiftValidator( scheduleBegin) ) {
-					shiftTime = scheduleBegin;
+					tdTitle = schedule.validation.reason;
 				}
 
 				if ( this.props.settings.is_absences_layer ) {
 
 				} else if ( this.props.settings.is_time_layer ) {
+					let shiftTime = "";
+					if ( ( Helpers.timeValidator( scheduleBegin ) && Helpers.timeValidator( scheduleEnd ) ) ) {
+						let scheduleBeginDate = moment(date + " " + scheduleBegin)
+						let scheduleEndDate = moment(date + " " + scheduleEnd)
+
+						if ( scheduleEndDate.diff(scheduleBeginDate) <= 0 ) {
+							scheduleEndDate.add(1, 'days');
+						}
+
+						shiftTime = moment.duration( scheduleEndDate.diff( scheduleBeginDate ) ).format("H:mm");
+					} else if( Helpers.shiftValidator( scheduleBegin) ) {
+						shiftTime = scheduleBegin;
+					}
+
 					tr.push(
 						<td id={employee.id + ":" + date} key={ employee.id + ":" + date} className={ tdClassName } title={ tdTitle }>
 							<input data-date-id={date} data-employee-id={employee.id} className={ inputClassName } value={ shiftTime } disabled/>
@@ -110,7 +95,7 @@ export default class EmployeesTableManager extends Component {
 				} else {
 					let endInput = null;
 
-					if ( schedule && timeValidator(schedule.begin) && !shiftValidator(schedule.begin) ) {
+					if ( schedule && Helpers.timeValidator(schedule.begin) ) {
 						endInput = <input data-date-id={date} data-employee-id={employee.id} className={ inputClassName } onChange={ this.props.onScheduleEndChange } value={ scheduleEnd } />
 					}
 
