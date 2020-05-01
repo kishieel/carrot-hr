@@ -17,7 +17,7 @@ export const timeValidator = (time) => {
 }
 
 export const shiftValidator = (shift) => {
-	let shifts = ["1", "2", "3", "W", "PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"];
+	let shifts = ["1", "2", "3", "W", "WS", "PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"];
 	return shifts.includes(shift)
 }
 

@@ -25,8 +25,6 @@ const momentDurationFormatSetup = require("moment-duration-format");
 // [!] TODO 12 : Przygotowanie modal'a z wszystkimi ustawieniami
 // [ ] TODO 13 : Ujmowanie czasu pracy pracownikom z preferencjami
 
-
-
 export default class App extends Component {
 	constructor(props) {
 		super(props);
@@ -39,19 +37,13 @@ export default class App extends Component {
 					"NP", "SP", "L4", "UW", "DU", "ZZ", "UO"
 				],
 				free_days: {  // Ustawienia dni tygodnia, wolne i jego rodzaj
-					sun: {
-						shift: "N",
-						permanent: true,
-					},
+					sun: {	shift: "ND", 	permanent: true,	},
 					mon: null,
 					tue: null,
 					wed: null,
 					thu: null,
 					fri: null,
-					sat: {
-						shift: "S",
-						permanent: false,
-					},
+					sat: { 	shift: "SB",	permanent: false,	},
 				},
 				min_per_shift: { // Minimalna załoga pracownicza na zmianie danego dnia
 					sun: {
@@ -110,20 +102,26 @@ export default class App extends Component {
 			},
 			employee_next_id: 14,
 			employees: [
-				// {	id: 0,	signature: "Adam Nowak",	time_contract: 1,	roles: []	},
-				{	id: 1,	signature: "Adam Nowak",	time_contract: 1,	roles: [ "KASJER" ]	},
-				{	id: 2,	signature: "Hubert Lipa",	time_contract: 1,	roles: [ "KASJER" ]	},
-				{	id: 3,	signature: "Karolina Pama",	time_contract: 1,	roles: [ "ZASTĘPCA" ]	},
-				{	id: 4,	signature: "Dawid Zsiadło",	time_contract: 1,	roles: [ "STARSZY KASJER" ]	},
-				{	id: 5,	signature: "Andrzej Jawor",	time_contract: 1,	roles: [ "KIEROWNIK" ]	},
-				{	id: 6,	signature: "Tomasz Budyń",	time_contract: 1,	roles: [ "KASJER" ]	},
-				{	id: 7,	signature: "Joanna Kwas",	time_contract: .75,	roles: [ "KASJER" ]	},
-				{	id: 8,	signature: "Adam Małysz",	time_contract: .75,	roles: [ "KASJER" ]	},
-				{	id: 9,	signature: "Kawaii Omate",	time_contract: 1,	roles: [ "ZASTĘPCA" ]	},
-				{	id: 10,	signature: "Siergiej Oli",	time_contract: 1,	roles: [ "ZASTĘPCA" ]	},
-				{	id: 11,	signature: "Jan Polak",		time_contract: 1,	roles: [ "KASJER" ]	},
-				{	id: 12,	signature: "Hans Niemiec",	time_contract: 1,	roles: [ "KASJER" ]	},
-				{	id: 13,	signature: "John States",	time_contract: .5,	roles: [ "KASJER" ]	},
+				/* {
+					id: 0,
+					signature: "Adam Nowak",
+					time_contract: 1,
+					time_left: 484
+					roles: []
+				}, */
+				{	id: 1,	signature: "Adam Nowak",	time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 2,	signature: "Hubert Lipa",	time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 3,	signature: "Karolina Pama",	time_contract: 1,	time_left: 496,	roles: [ "ZASTĘPCA" ]	},
+				{	id: 4,	signature: "Dawid Zsiadło",	time_contract: 1,	time_left: 496,	roles: [ "STARSZY KASJER" ]	},
+				{	id: 5,	signature: "Andrzej Jawor",	time_contract: 1,	time_left: 496,	roles: [ "KIEROWNIK" ]	},
+				{	id: 6,	signature: "Tomasz Budyń",	time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 7,	signature: "Joanna Kwas",	time_contract: .75,	time_left: 372,	roles: [ "KASJER" ]	},
+				{	id: 8,	signature: "Adam Małysz",	time_contract: .75,	time_left: 372,	roles: [ "KASJER" ]	},
+				{	id: 9,	signature: "Kawaii Omate",	time_contract: 1,	time_left: 496,	roles: [ "ZASTĘPCA" ]	},
+				{	id: 10,	signature: "Siergiej Oli",	time_contract: 1,	time_left: 496,	roles: [ "ZASTĘPCA" ]	},
+				{	id: 11,	signature: "Jan Polak",		time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 12,	signature: "Hans Niemiec",	time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 13,	signature: "John States",	time_contract: .5,	time_left: 248,	roles: [ "KASJER" ]	},
 			],
 			dates: [
 				"2020-04-01", "2020-04-02", "2020-04-03", "2020-04-04", "2020-04-05", "2020-04-06", "2020-04-07",
@@ -137,8 +135,8 @@ export default class App extends Component {
 				"2020-05-27", "2020-05-28", "2020-05-29", "2020-05-30", "2020-05-31", "2020-06-01", "2020-06-02",
 				"2020-06-03", "2020-06-04", "2020-06-05", "2020-06-06", "2020-06-07", "2020-06-08", "2020-06-09",
 				"2020-06-10", "2020-06-11", "2020-06-12", "2020-06-13", "2020-06-14", "2020-06-15", "2020-06-16",
-				"2020-06-17", "2020-06-18", "2020-06-19", "2020-06-21", "2020-06-22", "2020-06-23", "2020-06-24",
-				"2020-06-25", "2020-06-26", "2020-06-27", "2020-06-28", "2020-06-29", "2020-06-30",
+				"2020-06-17", "2020-06-18", "2020-06-19", "2020-06-20", "2020-06-21", "2020-06-22", "2020-06-23",
+				"2020-06-24", "2020-06-25", "2020-06-26", "2020-06-27", "2020-06-28", "2020-06-29", "2020-06-30",
 			],
 			// preferences: [],
 			schedules: [
@@ -153,7 +151,7 @@ export default class App extends Component {
 		this.handleOnUploadClick = this.handleOnUploadClick.bind(this);
 		this.handleOnUploadChange = this.handleOnUploadChange.bind(this);
 
-		this.handleOnGenerateClick = this.handleOnGenerateClick.bind(this);
+		// this.handleOnGenerateClick = this.handleOnGenerateClick.bind(this);
 		this.handleOnClearClick = this.handleOnClearClick.bind(this);
 
 		this.handleOnShowAbsencesClick = this.handleOnShowAbsencesClick.bind(this);
@@ -192,9 +190,6 @@ export default class App extends Component {
 		}
 
 		// Poprawność czasu pracy
-		// let preventDate = null;
-		// let currentDate = null;
-		// let currentSchedule
 		let preventSchedule = null;
 		let currentSchedule = null;
 		const weeks = Helpers.wodge( [ ...this.state.dates ], 7, 1);
@@ -212,12 +207,11 @@ export default class App extends Component {
 				currentSchedule = schedules_temp.find(schedule => { return ( schedule.date == date && Helpers.timeValidator( schedule.begin ) && Helpers.timeValidator( schedule.end ) ) } ) || null;
 				if ( currentSchedule == null ) {
 					schedulesGap += 1;
+					if ( schedulesGap >= 2 ) {
+						isWeeklyBreak = true;
+						schedulesGap = 0;
+					}
 				} else {
-					schedulesGap = 0;
-				}
-
-				if ( schedulesGap >= 2 ) {
-					isWeeklyBreak = true;
 					schedulesGap = 0;
 				}
 
@@ -240,11 +234,9 @@ export default class App extends Component {
 				// Walidacja między kolejnymi dniami
 				if ( preventSchedule && ( currentSchedule != preventSchedule ) ) { // Wiem że to poroniona akcaj ( currentSchedule != preventSchedule ) ale z racji że w tygodniu musze sprawdzic też 8 dzień to inaczej sie nieda :(
 					let preventScheduleEnd = moment(preventSchedule.date + " " + preventSchedule.end);
-					let currentScheduleBegin;
+					let currentScheduleBegin = moment(date + " " + "24:00");;
 					if ( currentSchedule ) {
 						currentScheduleBegin = moment(currentSchedule.date + " " + currentSchedule.begin);
-					} else {
-						currentScheduleBegin = moment(date + " " + "24:00");
 					}
 
 					let diff = moment.duration( currentScheduleBegin.diff( preventScheduleEnd ) ).asHours();
@@ -307,7 +299,214 @@ export default class App extends Component {
 		reader.readAsText(e.target.files[0]);
 	}
 
-	handleOnGenerateClick() { }
+	handleOnGenerateClick = () => {
+		this.state.schedules = this.state.schedules.filter(schedule => { return ( schedule.preference === true ) })
+		const schedules = this.state.schedules;
+
+		const weeks = Helpers.chunk([...this.state.dates], 7);
+		const employees = Helpers.duplicate( this.state.employees );
+		const free_days = Helpers.duplicate( this.state.settings.free_days );
+		for ( const index in free_days ) {
+			if ( free_days[index] !== null ) free_days[index].left = 0;
+		}
+		for ( const employee of employees ) {
+			employee.free_days = Helpers.duplicate( free_days );
+			// employee.time_left = () => {
+			// 	let time = 496;
+			// 	// const weeks = Helpers.chunk([...this.state.dates], 7);
+			// 	// for ( const week of weeks ) {
+			// 	// 	for ( const date of week ) {
+			// 	// 		let free_day = this.state.settings.free_days[ Helpers.getDayName(date) ];
+			// 	// 		let holiday = this.state.settings.holidays.find( holiday => { return ( holiday.date == date ) } )
+			// 	// 		if ( !free_day && !holiday ) time += 8 * employee.time_contract;
+			// 	// 	}
+			// 	// }
+			//
+			// 	const schedules = this.state.schedules.filter(schedule => { return ( schedule.employee_id === employee.id ) } )
+			// 	for ( const schedule of schedules ) {
+			// 		if ( Helpers.timeValidator( schedule.begin ) && Helpers.timeValidator( schedule.end ) ) {
+			// 			let scheduleBegin = moment(schedule.date + " " + schedule.begin)
+			// 			let scheduleEnd = moment(schedule.date + " " + schedule.end)
+			//
+			// 			if ( scheduleEnd.diff(scheduleBegin) <= 0 ) {
+			// 				scheduleEnd.add(1, 'days');
+			// 			}
+			//
+			// 			let diff = moment.duration( scheduleEnd.diff( scheduleBegin ) ).asHours();
+			// 			time -= diff;
+			// 		}
+			// 	}
+			//
+			// 	return time;
+			// }
+		}
+
+		for ( const week of weeks ) {
+
+			for ( const employee of employees ) {
+				for ( const date of week ) {
+					if ( employee.free_days[ Helpers.getDayName(date) ] !== null ) employee.free_days[ Helpers.getDayName(date) ].left += 1;
+				}
+			}
+
+			for ( const date of week ) {
+
+				const preferences = schedules.filter(schedule => { return ( schedule.date === date && schedule.preference === true ) } );
+
+				const free_day = this.state.settings.free_days[ Helpers.getDayName(date) ];
+				if ( free_day !== null ) {
+					if ( free_day.permanent === true ) {
+						for ( const employee of employees ) {
+							let schedule = preferences.find( schedule => { return ( schedule.employee_id === employee.id && schedule.date === date ) } ) || null;
+							if ( schedule === null ) {
+								employee.free_days[ Helpers.getDayName(date) ].left -= 1;
+								this.state.schedules.push( { employee_id: employee.id, date: date, begin: free_day.shift, end: null, preference: false, validation: { is_valid: true, reason: null } } );
+							}
+						}
+						continue;
+					}
+				}
+
+				const holiday = this.state.settings.holidays.find( holiday => { return ( holiday.date == date ) }) || null;
+				if ( holiday !== null ) {
+					for ( const employee of employees ) {
+						let schedule = preferences.find( schedule => { return ( schedule.employee_id === employee.id && schedule.date === date ) } ) || null;
+						if ( schedule === null ) {
+							this.state.schedules.push( { employee_id: employee.id, date: date, begin: holiday.shift, end: null, preference: false, validation: { is_valid: true, reason: null } } );
+						}
+					}
+					continue;
+				}
+
+				let schedules_shift_1 = preferences.filter( schedule => { return ( schedule.begin === "1" || schedule.begin === "5:45" ) } ).map( schedule => { schedule.begin = "6:00"; schedule.end = "14:00"; } ) || [];
+				let schedules_shift_2 = preferences.filter( schedule => { return ( schedule.begin === "2" || schedule.begin === "13:45" ) } ).map( schedule => { schedule.begin = "14:00"; schedule.end = "22:00"; } ) || [];
+				let schedules_shift_3 = preferences.filter( schedule => { return ( schedule.begin === "3" || schedule.begin === "21:45" ) } ).map( schedule => { schedule.begin = "22:00"; schedule.end = "6:00"; } ) || [];
+
+				let employees_with_preferences_id = preferences.map(schedule => { return schedule.employee_id } );
+
+				let available_employees = employees.filter(employee => { return ! employees_with_preferences_id.includes( employee.id ) } );
+
+				while ( schedules_shift_1.length < this.state.settings.min_per_shift[ Helpers.getDayName(date) ].shift_1 ) {
+					if ( available_employees.length === 0 ) break;
+
+					const employee = this.getMostBored( available_employees );
+
+					let index = available_employees.indexOf( employee );
+					available_employees.splice(index,1)
+
+					const schedule = { employee_id: employee.id, date: date, begin: "5:45", end: "14:15", preference: false, validation: { is_valid: true, reason: null } };
+					schedules_shift_1.push( schedule );
+					this.state.schedules.push( schedule );
+				}
+
+				while ( schedules_shift_2.length < this.state.settings.min_per_shift[ Helpers.getDayName(date) ].shift_2 ) {
+					if ( available_employees.length === 0 ) break;
+
+					const employee = this.getMostBored( available_employees );
+
+					let index = available_employees.indexOf( employee );
+					available_employees.splice(index,1)
+
+					const schedule = { employee_id: employee.id, date: date, begin: "13:45", end: "22:15", preference: false, validation: { is_valid: true, reason: null } };
+					schedules_shift_2.push( schedule );
+					this.state.schedules.push( schedule );
+				}
+
+				while ( schedules_shift_3.length < this.state.settings.min_per_shift[ Helpers.getDayName(date) ].shift_3 ) {
+					if ( available_employees.length === 0 ) break;
+
+					const employee = this.getMostBored( available_employees );
+
+					let index = available_employees.indexOf( employee );
+					available_employees.splice(index,1)
+
+					const schedule = { employee_id: employee.id, date: date, begin: "21:45", end: "6:15", preference: false, validation: { is_valid: true, reason: null } };
+					schedules_shift_3.push( schedule );
+					this.state.schedules.push( schedule );
+				}
+
+
+				/*
+					* Tych z preferencjami trzeba podzielić na 3 kategorie
+					* 1 zmiana
+					* 2 zmiana
+					* 3 zmiana
+					* jeżeli maja wpisany czas pracy a nie zmiany
+					* to trzeba przeliczyć czy ten czas miesci sie w ramach
+					* jakiejs zmiany, jezeli jego czas trwania w min 75%
+					* pokrywa sie z dana zmiana to jest on liczony jako ta zmiana
+					* moze sie zdazyc tak ze pracownik pokryje dwie zmiany
+				*/
+
+				/*
+					6:00 - 14:00 Pierwsza zmiana
+					14:00 - 22:00 Druga zmiana
+					22:00 - 8:00 Trzecia zmiana
+				*/
+
+				/*
+					Przykładowy czas pracy:
+					8:00 - 20:00 zajmuje min 75% czasu pierwszej zmiany
+					i min 75% czasu drugiej zmiany, czyli jest traktowany
+					jako pracownik, który zajmuje obie zmiany
+				*/
+
+				/*
+					Krok 1 uwzglednienie jedynie cyfrowego zapisu zmian
+					Krok 2 stworzenie funkcji sprawdzającej w ilu porcentach podany
+							czas pracy pokrywa sie z podanym zakresem godzin
+				*/
+
+				// break;
+			}
+
+			// if(i>5)break;
+		}
+
+		// console.log(employees);
+
+		this.validateAllSchedules();
+		// this.forceUpdate();
+		// this.pushSchedules( schedules );
+	}
+
+	getMostBored = (employees) => {
+		if ( employees.length === 0 ) return;
+		let mostBored = employees[0];
+		for ( const employee of employees ) {
+			if ( mostBored.time_left() < employee.time_left() ) {
+				mostBored = employee;
+			}
+		}
+		return mostBored
+	}
+
+	pushSchedules = ( schedules ) => {
+
+		// emps_id
+
+		// const to_update = schedules.map(schedule => { return [ schedule.employee_id, schedule.date ] })
+		// console.log(to_update)
+		//
+		// console.log( this.state.schedules , {schedules})
+		//
+		// const base = [ ...this.state.schedules ].filter( schedule => { return (
+		// 	schedule.employee_id not in schedules.employee_id
+		// ) });
+		//
+		// let schedules_temp = [ ...this.state.schedules ]
+		//
+		// const removes = schedules.map(schedule => ({ employee_id: schedule.employee_id, date: schedule.date }) )
+		// for ( const schedule_to_remove of schedules_to_remove ) {
+		//
+		//
+		// 	let schedule_reference = schedules_temp.find(schedule => { return ( schedule.employee_id == schedule_to_remove.employee_id && schedule.date == schedule_to_remove.date) })
+		// 	let i = schedules_temp.indexOf(schedule_reference)
+		// 	if( i >= 0 ) schedules_temp.splice(i,1)
+		// }
+		//
+		// this.setState( { schedules: [ ...schedules_temp, ...p_schedules ] } );
+	}
 
 	handleOnClearClick() {
 		this.setState( { schedules: [ ]} )
@@ -333,10 +532,23 @@ export default class App extends Component {
 
 	handleOnNewEmployee(e) {
 		if (e.key === "Enter") {
+			const start_time = () => {
+				let time = 0;
+				const weeks = Helpers.chunk([...this.state.dates], 7);
+				for ( const week of weeks ) {
+					for ( const date of week ) {
+						let free_day = this.state.settings.free_days[ Helpers.getDayName(date) ];
+						let holiday = this.state.settings.holidays.find( holiday => { return ( holiday.date == date ) } )
+						if ( !free_day && !holiday ) time += 8 /* base = 8, time_constract = 1 */;
+					}
+				}
+			}
+
 			const employee = {
 				id: this.state.employee_next_id,
 				signature: e.target.value,
 				time_contract: 1,
+				time_left: start_time(),
 				roles: []
 			}
 
@@ -375,9 +587,6 @@ export default class App extends Component {
 		} else {
 			this.setState( { schedules: [ ...schedules_temp ] }, () => this.validateAllSchedules( parseInt( employee_id ) ) );
 		}
-
-
-
 	}
 
 	handleOnScheduleEndChange(e) {
@@ -393,6 +602,7 @@ export default class App extends Component {
 			schedule.date == e.target.getAttribute('data-date-id')
 		)});
 		schedule.end = e.target.value;
+		schedule.preference = e.target.true;
 
 		this.setState( { schedules: [ ...schedules_temp, schedule ] }, () => this.validateAllSchedules( parseInt( employee_id ) ) );
 	}
@@ -402,11 +612,9 @@ export default class App extends Component {
 	// pushSchedules( p_schedules ) { }
 
 
+
 	// <button className="btn btn-outline-primary font-weight-bold mr-2" type="button">Pokaż preferencje</button>
 	// <button className="btn btn-outline-danger font-weight-bold mr-4" type="button" onClick={ this.handleOnClearPreferencesClick }>Usuń preferencje</button>
-
-	// ustawienia - zapisz - wczytaj - generuj plan pracy - wyczysc plan pracy - pokaz/ukryj absencje - pokaz/ukryj czas pracy - cofnij - przywroc
-
 
 	render() {
 		return (
