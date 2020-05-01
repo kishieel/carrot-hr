@@ -22,39 +22,6 @@ export default class EmployeesTableManager extends Component {
 	    return ( <tr key="tr-header">{ tr }</tr> )
 	}
 
-	// employeeTime = (employee_id, time_contract) => {
-	// 	let calculateTime = (base, div) => {
-	// 		let time = 0;
-	// 		const weeks = Helpers.chunk([...this.props.dates], 7);
-	// 		for ( const week of weeks ) {
-	// 			for ( const date of week ) {
-	// 				let free_day = this.props.settings.free_days[ Helpers.getDayName(date) ];
-	// 				let holiday = this.props.settings.holidays.find( holiday => { return ( holiday.date == date ) } )
-	// 				if ( !free_day && !holiday ) time += 1 * ( base * div);
-	// 			}
-	// 		}
-	// 		return time;
-	// 	}
-	// 	let time = calculateTime(8, time_contract)
-	//
-	// 	const schedules = [ ...this.props.schedules ].filter(schedule => { return ( schedule.employee_id === employee_id ) } )
-	// 	for ( const schedule of schedules ) {
-	// 		if ( Helpers.timeValidator( schedule.begin ) && Helpers.timeValidator( schedule.end ) ) {
-	// 			let scheduleBegin = moment(schedule.date + " " + schedule.begin)
-	// 			let scheduleEnd = moment(schedule.date + " " + schedule.end)
-	//
-	// 			if ( scheduleEnd.diff(scheduleBegin) <= 0 ) {
-	// 				scheduleEnd.add(1, 'days');
-	// 			}
-	//
-	// 			let diff = moment.duration( scheduleEnd.diff( scheduleBegin ) ).asHours();
-	// 			time -= diff;
-	// 		}
-	// 	}
-	//
-	// 	return time;
-	// }
-
 	tableData() {
 		let tbody = []
 

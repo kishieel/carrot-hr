@@ -99,6 +99,7 @@ export default class App extends Component {
 				],
 				is_absences_layer: false,
 				is_time_layer: false,
+				is_shifts_layer: false,
 			},
 			employee_next_id: 14,
 			employees: [
@@ -106,22 +107,23 @@ export default class App extends Component {
 					id: 0,
 					signature: "Adam Nowak",
 					time_contract: 1,
-					time_left: 484
+					time_base: 496,
+					time_left: 496,
 					roles: []
 				}, */
-				{	id: 1,	signature: "Adam Nowak",	time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
-				{	id: 2,	signature: "Hubert Lipa",	time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
-				{	id: 3,	signature: "Karolina Pama",	time_contract: 1,	time_left: 496,	roles: [ "ZASTĘPCA" ]	},
-				{	id: 4,	signature: "Dawid Zsiadło",	time_contract: 1,	time_left: 496,	roles: [ "STARSZY KASJER" ]	},
-				{	id: 5,	signature: "Andrzej Jawor",	time_contract: 1,	time_left: 496,	roles: [ "KIEROWNIK" ]	},
-				{	id: 6,	signature: "Tomasz Budyń",	time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
-				{	id: 7,	signature: "Joanna Kwas",	time_contract: .75,	time_left: 372,	roles: [ "KASJER" ]	},
-				{	id: 8,	signature: "Adam Małysz",	time_contract: .75,	time_left: 372,	roles: [ "KASJER" ]	},
-				{	id: 9,	signature: "Kawaii Omate",	time_contract: 1,	time_left: 496,	roles: [ "ZASTĘPCA" ]	},
-				{	id: 10,	signature: "Siergiej Oli",	time_contract: 1,	time_left: 496,	roles: [ "ZASTĘPCA" ]	},
-				{	id: 11,	signature: "Jan Polak",		time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
-				{	id: 12,	signature: "Hans Niemiec",	time_contract: 1,	time_left: 496,	roles: [ "KASJER" ]	},
-				{	id: 13,	signature: "John States",	time_contract: .5,	time_left: 248,	roles: [ "KASJER" ]	},
+				{	id: 1,	signature: "Adam Nowak",	time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "KIEROWNIK" ]	},
+				{	id: 2,	signature: "Hubert Lipa",	time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "ZASTĘPCA" ]	},
+				{	id: 3,	signature: "Karolina Pama",	time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "ZASTĘPCA" ]	},
+				{	id: 4,	signature: "Dawid Zsiadło",	time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "ZASTĘPCA" ]	},
+				{	id: 5,	signature: "Andrzej Jawor",	time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "STARSZY KASJER" ]	},
+				{	id: 6,	signature: "Tomasz Budyń",	time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 7,	signature: "Joanna Kwas",	time_contract: .75,	time_base: 372,	time_left: 372,	roles: [ "KASJER" ]	},
+				{	id: 8,	signature: "Adam Małysz",	time_contract: .75,	time_base: 372,	time_left: 372,	roles: [ "KASJER" ]	},
+				{	id: 9,	signature: "Kawaii Omate",	time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 10,	signature: "Siergiej Oli",	time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 11,	signature: "Jan Polak",		time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 12,	signature: "Hans Niemiec",	time_contract: 1,	time_base: 496,	time_left: 496,	roles: [ "KASJER" ]	},
+				{	id: 13,	signature: "John States",	time_contract: .5,	time_base: 248,	time_left: 248,	roles: [ "KASJER" ]	},
 			],
 			dates: [
 				"2020-04-01", "2020-04-02", "2020-04-03", "2020-04-04", "2020-04-05", "2020-04-06", "2020-04-07",
@@ -151,7 +153,6 @@ export default class App extends Component {
 		this.handleOnUploadClick = this.handleOnUploadClick.bind(this);
 		this.handleOnUploadChange = this.handleOnUploadChange.bind(this);
 
-		// this.handleOnGenerateClick = this.handleOnGenerateClick.bind(this);
 		this.handleOnClearClick = this.handleOnClearClick.bind(this);
 
 		this.handleOnShowAbsencesClick = this.handleOnShowAbsencesClick.bind(this);
@@ -167,8 +168,14 @@ export default class App extends Component {
 		// this.pushSchedule = this.pushSchedule.bind(this);
 	}
 
+	validateAllSchedules = () => {
+		for ( const employee of this.state.employees ) {
+			this.validateEmployeeSchedules( employee.id );
+		}
+	}
+
 	// Tu trzeba będzie zrobić tak żeby sprawdzało tylko dla jednego pracownika bo to szkoda zachodu na niezainteresowanych
-	validateAllSchedules = (employee_id) => {
+	validateEmployeeSchedules = (employee_id) => {
 
 		// Poprawność leksykalna wpisu
 		const schedules_temp = [ ...this.state.schedules ].filter(schedule => { return ( schedule.employee_id === employee_id ) } );
@@ -304,41 +311,14 @@ export default class App extends Component {
 		const schedules = this.state.schedules;
 
 		const weeks = Helpers.chunk([...this.state.dates], 7);
-		const employees = Helpers.duplicate( this.state.employees );
-		const free_days = Helpers.duplicate( this.state.settings.free_days );
+		const employees = this.state.employees;
+		const free_days = this.state.settings.free_days;
 		for ( const index in free_days ) {
 			if ( free_days[index] !== null ) free_days[index].left = 0;
 		}
 		for ( const employee of employees ) {
 			employee.free_days = Helpers.duplicate( free_days );
-			// employee.time_left = () => {
-			// 	let time = 496;
-			// 	// const weeks = Helpers.chunk([...this.state.dates], 7);
-			// 	// for ( const week of weeks ) {
-			// 	// 	for ( const date of week ) {
-			// 	// 		let free_day = this.state.settings.free_days[ Helpers.getDayName(date) ];
-			// 	// 		let holiday = this.state.settings.holidays.find( holiday => { return ( holiday.date == date ) } )
-			// 	// 		if ( !free_day && !holiday ) time += 8 * employee.time_contract;
-			// 	// 	}
-			// 	// }
-			//
-			// 	const schedules = this.state.schedules.filter(schedule => { return ( schedule.employee_id === employee.id ) } )
-			// 	for ( const schedule of schedules ) {
-			// 		if ( Helpers.timeValidator( schedule.begin ) && Helpers.timeValidator( schedule.end ) ) {
-			// 			let scheduleBegin = moment(schedule.date + " " + schedule.begin)
-			// 			let scheduleEnd = moment(schedule.date + " " + schedule.end)
-			//
-			// 			if ( scheduleEnd.diff(scheduleBegin) <= 0 ) {
-			// 				scheduleEnd.add(1, 'days');
-			// 			}
-			//
-			// 			let diff = moment.duration( scheduleEnd.diff( scheduleBegin ) ).asHours();
-			// 			time -= diff;
-			// 		}
-			// 	}
-			//
-			// 	return time;
-			// }
+			employee.time_left = employee.time_base;
 		}
 
 		for ( const week of weeks ) {
@@ -384,12 +364,56 @@ export default class App extends Component {
 
 				let employees_with_preferences_id = preferences.map(schedule => { return schedule.employee_id } );
 
-				let available_employees = employees.filter(employee => { return ! employees_with_preferences_id.includes( employee.id ) } );
+				let available_managers = employees.filter(employee => { return ( ! employees_with_preferences_id.includes( employee.id ) && ( employee.roles.includes("KIEROWNIK") || employee.roles.includes("ZASTĘPCA") ) ) } );
+				let available_employees = employees.filter(employee => { return ( ! employees_with_preferences_id.includes( employee.id ) && ( employee.roles.includes("KASJER") || employee.roles.includes("STARSZY KASJER") ) ) } );
+
+				console.log( {available_managers}, {available_employees });
+
+				if ( schedules_shift_1.length < this.state.settings.min_per_shift[ Helpers.getDayName(date) ].shift_1 ) {
+					const employee = this.getMostBored( available_managers );
+					employee.time_left -= 8.5;
+
+					let index = available_managers.indexOf( employee );
+					available_managers.splice(index, 1);
+
+					const schedule = { employee_id: employee.id, date: date, begin: "5:45", end: "14:15", preference: false, validation: { is_valid: true, reason: null } };
+					schedules_shift_1.push( schedule );
+					this.state.schedules.push( schedule );
+				}
+
+				if ( schedules_shift_2.length < this.state.settings.min_per_shift[ Helpers.getDayName(date) ].shift_2 ) {
+					const employee = this.getMostBored( available_managers );
+					employee.time_left -= 8.5;
+
+					let index = available_managers.indexOf( employee );
+					available_managers.splice(index, 1);
+
+					const schedule = { employee_id: employee.id, date: date, begin: "13:45", end: "22:15", preference: false, validation: { is_valid: true, reason: null } };
+					schedules_shift_2.push( schedule );
+					this.state.schedules.push( schedule );
+				}
+
+				for ( const employee of available_managers ) {
+					available_employees.push( employee );
+				}
+
+				// if ( schedules_shift_3.length < this.state.settings.min_per_shift[ Helpers.getDayName(date) ].shift_3 ) {
+				// 	const employee = this.getMostBored( available_managers );
+				// 	employee.time_left -= 8.5;
+				//
+				// 	let index = available_managers.indexOf( employee );
+				// 	available_managers.splice(index, 1);
+				//
+				// 	const schedule = { employee_id: employee.id, date: date, begin: "21:45", end: "6:15", preference: false, validation: { is_valid: true, reason: null } };
+				// 	schedules_shift_3.push( schedule );
+				// 	this.state.schedules.push( schedule );
+				// }
 
 				while ( schedules_shift_1.length < this.state.settings.min_per_shift[ Helpers.getDayName(date) ].shift_1 ) {
 					if ( available_employees.length === 0 ) break;
 
 					const employee = this.getMostBored( available_employees );
+					employee.time_left -= 8.5;
 
 					let index = available_employees.indexOf( employee );
 					available_employees.splice(index,1)
@@ -403,6 +427,7 @@ export default class App extends Component {
 					if ( available_employees.length === 0 ) break;
 
 					const employee = this.getMostBored( available_employees );
+					employee.time_left -= 8.5;
 
 					let index = available_employees.indexOf( employee );
 					available_employees.splice(index,1)
@@ -412,18 +437,52 @@ export default class App extends Component {
 					this.state.schedules.push( schedule );
 				}
 
-				while ( schedules_shift_3.length < this.state.settings.min_per_shift[ Helpers.getDayName(date) ].shift_3 ) {
-					if ( available_employees.length === 0 ) break;
+				// while ( schedules_shift_3.length < this.state.settings.min_per_shift[ Helpers.getDayName(date) ].shift_3 ) {
+				// 	if ( available_employees.length === 0 ) break;
+				//
+				// 	const employee = this.getMostBored( available_employees );
+				// 	employee.time_left -= 8.5;
+				//
+				// 	let index = available_employees.indexOf( employee );
+				// 	available_employees.splice(index,1)
+				//
+				// 	const schedule = { employee_id: employee.id, date: date, begin: "21:45", end: "6:15", preference: false, validation: { is_valid: true, reason: null } };
+				// 	schedules_shift_3.push( schedule );
+				// 	this.state.schedules.push( schedule );
+				// }
 
-					const employee = this.getMostBored( available_employees );
-
-					let index = available_employees.indexOf( employee );
-					available_employees.splice(index,1)
-
-					const schedule = { employee_id: employee.id, date: date, begin: "21:45", end: "6:15", preference: false, validation: { is_valid: true, reason: null } };
-					schedules_shift_3.push( schedule );
-					this.state.schedules.push( schedule );
+				for ( const employee of available_employees ) {
+					let shift = "W";
+					for ( const index in employee.free_days ) {
+						if ( employee.free_days[index] !== null ) {
+							if ( ( employee.free_days[index].permanent === true && employee.free_days[index].left > 1 ) ||
+								 ( employee.free_days[index].permanent === false && employee.free_days[index].left > 0 ) ) {
+								 shift = employee.free_days[index].shift;
+								 employee.free_days[index].left -= 1;
+								 break;
+				 		 	}
+						}
+					}
+					this.state.schedules.push( { employee_id: employee.id, date: date, begin: shift, end: null, preference: false, validation: { is_valid: true, reason: null } } );
 				}
+
+				// for ( const employee of employees_no_preferences ) {
+				// 	let shift = "W";
+				// 	for ( const key of ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] ) {
+				// 		if ( !employee.free_days[key] ) continue
+				// 		if ( ( this.state.settings.free_days[key].permanent === true && employee.free_days[key].left > 1 ) ||
+				// 			 ( this.state.settings.free_days[key].permanent === false && employee.free_days[key].left > 0 ) ) {
+				// 			shift = employee.free_days[key].shift;
+				// 			employee.free_days[key].left -= 1;
+				// 			break;
+				// 		}
+				// 	}
+				// 	schedules.push( { employee_id: employee.id, date: date, shift: shift, preference: false } );
+				// }
+				//
+				// for ( const employee of employees_to_free ) {
+				// 	schedules.push( { employee_id: employee.id, date: date, shift: "W", preference: false } );
+				// }
 
 
 				/*
@@ -474,38 +533,11 @@ export default class App extends Component {
 		if ( employees.length === 0 ) return;
 		let mostBored = employees[0];
 		for ( const employee of employees ) {
-			if ( mostBored.time_left() < employee.time_left() ) {
+			if ( mostBored.time_left / mostBored.time_base < employee.time_left / employee.time_base ) {
 				mostBored = employee;
 			}
 		}
 		return mostBored
-	}
-
-	pushSchedules = ( schedules ) => {
-
-		// emps_id
-
-		// const to_update = schedules.map(schedule => { return [ schedule.employee_id, schedule.date ] })
-		// console.log(to_update)
-		//
-		// console.log( this.state.schedules , {schedules})
-		//
-		// const base = [ ...this.state.schedules ].filter( schedule => { return (
-		// 	schedule.employee_id not in schedules.employee_id
-		// ) });
-		//
-		// let schedules_temp = [ ...this.state.schedules ]
-		//
-		// const removes = schedules.map(schedule => ({ employee_id: schedule.employee_id, date: schedule.date }) )
-		// for ( const schedule_to_remove of schedules_to_remove ) {
-		//
-		//
-		// 	let schedule_reference = schedules_temp.find(schedule => { return ( schedule.employee_id == schedule_to_remove.employee_id && schedule.date == schedule_to_remove.date) })
-		// 	let i = schedules_temp.indexOf(schedule_reference)
-		// 	if( i >= 0 ) schedules_temp.splice(i,1)
-		// }
-		//
-		// this.setState( { schedules: [ ...schedules_temp, ...p_schedules ] } );
 	}
 
 	handleOnClearClick() {
@@ -516,6 +548,7 @@ export default class App extends Component {
 		let settings_temp = { ...this.state.settings }
 		settings_temp.is_absences_layer = !settings_temp.is_absences_layer;
 		settings_temp.is_time_layer = false;
+		settings_temp.is_shifts_layer = false;
 		this.setState( { settings: { ...settings_temp } } );
 	}
 
@@ -523,6 +556,15 @@ export default class App extends Component {
 		let settings_temp = { ...this.state.settings }
 		settings_temp.is_time_layer = !settings_temp.is_time_layer;
 		settings_temp.is_absences_layer = false;
+		settings_temp.is_shifts_layer = false;
+		this.setState( { settings: { ...settings_temp } } );
+	}
+
+	handleOnShowShiftsClick = () => {
+		let settings_temp = { ...this.state.settings }
+		settings_temp.is_shifts_layer = !settings_temp.is_shifts_layer;
+		settings_temp.is_absences_layer = false;
+		settings_temp.is_time_layer = false;
 		this.setState( { settings: { ...settings_temp } } );
 	}
 
@@ -544,11 +586,14 @@ export default class App extends Component {
 				}
 			}
 
+			let time_base = start_time();
+
 			const employee = {
 				id: this.state.employee_next_id,
 				signature: e.target.value,
 				time_contract: 1,
-				time_left: start_time(),
+				time_base: time_base,
+				time_left: time_base,
 				roles: []
 			}
 
@@ -583,9 +628,9 @@ export default class App extends Component {
 					// reason: ""
 				}
 			}
-			this.setState( { schedules: [ ...schedules_temp, schedule ] }, () => this.validateAllSchedules( parseInt( employee_id ) ) );
+			this.setState( { schedules: [ ...schedules_temp, schedule ] }, () => this.validateEmployeeSchedules( parseInt( employee_id ) ) );
 		} else {
-			this.setState( { schedules: [ ...schedules_temp ] }, () => this.validateAllSchedules( parseInt( employee_id ) ) );
+			this.setState( { schedules: [ ...schedules_temp ] }, () => this.validateEmployeeSchedules( parseInt( employee_id ) ) );
 		}
 	}
 
@@ -602,9 +647,9 @@ export default class App extends Component {
 			schedule.date == e.target.getAttribute('data-date-id')
 		)});
 		schedule.end = e.target.value;
-		schedule.preference = e.target.true;
+		schedule.preference = true;
 
-		this.setState( { schedules: [ ...schedules_temp, schedule ] }, () => this.validateAllSchedules( parseInt( employee_id ) ) );
+		this.setState( { schedules: [ ...schedules_temp, schedule ] }, () => this.validateEmployeeSchedules( parseInt( employee_id ) ) );
 	}
 
 	// pushSchedule( p_schedule ) { }
@@ -629,8 +674,11 @@ export default class App extends Component {
 						<button className="btn btn-outline-info font-weight-bold mr-2" type="button" onClick={ this.handleOnShowAbsencesClick }>
 							{ ( this.state.settings.is_absences_layer === false ) ? "Pokaż absencje" : "Ukryj absencje" }
 						</button>
-						<button className="btn btn-outline-info font-weight-bold mr-4" type="button" onClick={ this.handleOnShowTimeClick }>
+						<button className="btn btn-outline-info font-weight-bold mr-2" type="button" onClick={ this.handleOnShowTimeClick }>
 							{ ( this.state.settings.is_time_layer === false ) ? "Pokaż czas pracy" : "Ukryj czas pracy" }
+						</button>
+						<button className="btn btn-outline-info font-weight-bold mr-4" type="button" onClick={ this.handleOnShowShiftsClick }>
+							{ ( this.state.settings.is_shifts_layer === false ) ? "Pokaż zmiany" : "Ukryj zmiany" }
 						</button>
 						<button className="btn btn-outline-dark font-weight-bold mr-2" type="button">Cofnij</button>
 				    	<button className="btn btn-outline-dark font-weight-bold mr-2" type="button">Przywróć</button>
