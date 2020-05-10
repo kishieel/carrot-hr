@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Modal, Container, Row, Col, Button, Form, Table } from 'react-bootstrap';
-import { getDayShortName } from '../helpers'
+import { getDayShortName, getDatesFromPeriod } from '../helpers'
 
 const moment = require('moment')
 
@@ -60,13 +60,13 @@ const ScheduleCell = React.memo((props) => {
 });
 
 const ScheduleRow = React.memo((props) => {
-	const dates = useSelector( state => state.dates );
+	const { billing_period, billing_period_type } = useSelector( state => state.settings );
 
 	return (
 		<tr>
 			<th className="text-center">{ props.no }</th>
 			<th className="text-nowrap" onClick={ props.onSignatureClick }>{ props.employee.signature }</th>
-			{ dates.map(date => { return (
+			{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
 				<ScheduleCell />
 			)}) }
 		</tr>
@@ -78,6 +78,7 @@ function Schedule() {
 	const [modalEmployeeID, setModalEmployeeID] = useState(0)
 	const dispatch = useDispatch();
 	const { schedules } = useSelector( state => state.schedules );
+	const { billing_period, billing_period_type } = useSelector( state => state.settings );
 	const dates = useSelector( state => state.dates );
 	const employees = useSelector( state => state.employees );
 
@@ -88,9 +89,9 @@ function Schedule() {
 				<tr>
 					<th>#</th>
 					<th className="carrotHR__signature">Pracownik</th>
-					{ dates.map(date => { return (
+					{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
 						<th className="text-nowrap text-center p-0">
-							<span className="px-3">{ moment(date).format('MM-DD') }</span><hr className="m-0"/>
+							<span className="px-3">{ moment(date).format('DD-MM') }</span><hr className="m-0"/>
 							<span className="px-3">{ getDayShortName( moment(date).format('ddd').toLowerCase() ) }</span>
 						</th>
 					)}) }
@@ -105,7 +106,7 @@ function Schedule() {
 					<th className="text-nowrap">
 						<Form.Control type="text" size="sm" placeholder="DODAJ PRACOWNIKA" onKeyDown={ (e) => { ( e.key === 'Enter' ) ? (() => { dispatch({ type: 'EMPLOYEE_CREATE', value: e.target.value }); e.target.value = ""; })() : (() => {})() } }/>
 					</th>
-					{ dates.map(date => { return (
+					{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
 						<td className="text-center"> </td>
 					)}) }
 				</tr>

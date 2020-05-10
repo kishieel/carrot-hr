@@ -3,6 +3,8 @@ import { DAYS } from '../helpers'
 const initialState = {
 	is_absences_layer: false,
 	is_time_layer: false,
+	billing_period_type: "MONTH",
+	billing_period: "2020-01", /* 2020-01 */
 	daily_time: "12:00",
 	daily_break: "13:00",
 	weekly_break: "35:00",
@@ -16,34 +18,13 @@ const initialState = {
 		sun: { index: "ND", permanent: true},
 	},
 	shifts_crew: {
-		sun: {
-			shift_1: 0,
-			shift_2: 0,
-		},
-		mon: {
-			shift_1: 5,
-			shift_2: 5,
-		},
-		tue: {
-			shift_1: 4,
-			shift_2: 4,
-		},
-		wed: {
-			shift_1: 5,
-			shift_2: 4,
-		},
-		thu: {
-			shift_1: 4,
-			shift_2: 4,
-		},
-		fri: {
-			shift_1: 4,
-			shift_2: 4,
-		},
-		sat: {
-			shift_1: 5,
-			shift_2: 4,
-		},
+		sun: { shift_1: 0, shift_2: 0, shift_3: 0 },
+		mon: { shift_1: 5, shift_2: 5, shift_3: 0 },
+		tue: { shift_1: 4, shift_2: 4, shift_3: 0 },
+		wed: { shift_1: 5, shift_2: 4, shift_3: 0 },
+		thu: { shift_1: 4, shift_2: 4, shift_3: 0 },
+		fri: { shift_1: 4, shift_2: 4, shift_3: 0 },
+		sat: { shift_1: 5, shift_2: 4, shift_3: 0 },
 	}
 }
 
@@ -52,10 +33,10 @@ const settingsReducer = ( state = initialState, action ) => {
 		case 'DAILY_TIME': {
 			return { ...state, daily_time: action.value }
 		}
-		case 'DAILY_TIME': {
+		case 'DAILY_BREAK': {
 			return { ...state, daily_break: action.value }
 		}
-		case 'DAILY_TIME': {
+		case 'WEEKLY_BREAK': {
 			return { ...state, weekly_break: action.value }
 		}
 		case 'FREE_DAYS': {
@@ -94,6 +75,12 @@ const settingsReducer = ( state = initialState, action ) => {
 			state.is_absences_layer = ! state.is_absences_layer
 			state.is_time_layer = false
 			return { ...state }
+		}
+		case 'BILLING_PERIOD_TYPE': {
+			return { ...state, billing_period_type: action.value }
+		}
+		case 'BILLING_PERIOD': {
+			return { ...state, billing_period: action.value }
 		}
 		case 'WORK_TIME': {
 			state.is_absences_layer = false

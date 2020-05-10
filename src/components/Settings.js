@@ -1,12 +1,28 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, Modal, Container, Row, Col, Form, Table } from 'react-bootstrap';
-import { DAYS, getDayName } from '../helpers'
+import { DAYS, getDayName, getQuarterName, getMonthName } from '../helpers'
+
+const BillingPeriod = (props) => {
+	if ( props.period_type === "MONTH" ) {
+		return (<>
+			{ ["2020-01", "2020-02", "2020-03", "2020-04", "2020-05", "2020-06", "2020-07", "2020-08", "2020-09", "2020-10", "2020-11", "2020-12" ].map(period => {
+				return ( <option value={period}>{ getMonthName( period ) }</option> )
+			}) }
+		</>)
+	}
+	return (<>
+		{ ["2020-01", "2020-04", "2020-07", "2020-10" ].map(period => {
+			return ( <option value={period}>{ getQuarterName( period ) }</option> )
+		}) }
+	</>)
+}
 
 function Settings() {
 	const [modalShow, setModalShow] = useState(false);
 	const dispatch = useDispatch();
-	const { daily_time, daily_break, weekly_break, free_days, shifts_crew } = useSelector( state => state.settings );
+	const { billing_period, billing_period_type, daily_time, daily_break, weekly_break, free_days, shifts_crew } = useSelector( state => state.settings );
+	const holidays = useSelector( state => state.holidays );
 
 	return (<>
 		<Button className="mr-4" variant="outline-warning" onClick={ () => setModalShow(true) } ><b> Ustawienia </b></Button>
@@ -18,6 +34,27 @@ function Settings() {
 			</Modal.Header>
 			<Modal.Body>
 				<Container>
+					<Row className="show-grid align-items-center mb-2">
+						<Col sm={7} lg={8}>
+							Rodzaj okresu rozliczeniowy:
+						</Col>
+						<Col sm={5} lg={4}>
+						<Form.Control as="select" value={ billing_period_type } onChange={ (e) => dispatch({ type: 'BILLING_PERIOD_TYPE', value: e.target.value }) } custom>
+							<option value={"MONTH"}>Miesięczny</option>
+							<option value={"QUARTER"}>Kwartalny</option>
+						</Form.Control>
+						</Col>
+					</Row>
+					<Row className="show-grid align-items-center mb-2">
+						<Col sm={7} lg={8}>
+							Okres rozliczeniowy:
+						</Col>
+						<Col sm={5} lg={4}>
+						<Form.Control as="select" value={ billing_period } onChange={ (e) => dispatch({ type: 'BILLING_PERIOD', value: e.target.value }) } custom>
+							<BillingPeriod period_type={ billing_period_type } />
+						</Form.Control>
+						</Col>
+					</Row>
 					<Row className="show-grid align-items-center mb-2">
 						<Col sm={9} lg={10}>
 			  				Maksymalny dzienny czas pracy:
@@ -67,6 +104,8 @@ function Settings() {
 									<Col xs={12}/>
 								</Row>
 							)
+						} else {
+							return false;
 						}
 					})}
 					<hr/>
@@ -101,15 +140,13 @@ function Settings() {
 													</td>
 												</tr>
 											)
+										} else {
+											return false;
 										}
 									}) }
 								</tbody>
 							</Table>
 						</Col>
-					</Row>
-					<hr/>
-					<Row className="show-grid align-items-center mb-3">
-						<Col xs={12} className="mb-1"> Dni ustawowo wolne: </Col>
 					</Row>
 				</Container>
 			</Modal.Body>
