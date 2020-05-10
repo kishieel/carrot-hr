@@ -1,6 +1,6 @@
 const moment = require('moment')
 
-const defaultReducer = ( root, action) => {
+const defaultReducer = ( state = {}, action, root) => {
 	switch( action.type ) {
 		case 'SAVE': {
 			const file = new Blob( [ JSON.stringify( root ) ], { type: 'application/json' } ) || null;
@@ -11,7 +11,7 @@ const defaultReducer = ( root, action) => {
 			document.body.appendChild(element);
 			element.click();
 
-			return { ...root }
+			return { ...state }
 		}
 		case 'LOADED': {
 			let obj = action.payload;
@@ -19,10 +19,10 @@ const defaultReducer = ( root, action) => {
 			root.schedules = obj.schedules;
 			root.employees = obj.employees;
 
-			return { ...root }
+			return { ...state }
 		}
 		default:
-			return root
+			return state
 	}
 }
 

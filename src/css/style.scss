@@ -20,6 +20,10 @@
 	overflow: auto;
 }
 
+.carrotHR__signature {
+	min-width: 12rem;
+}
+
 .carrotHR__input {
 	width: 60px;
 	height: 1.5em;
@@ -28,6 +32,8 @@
 	color: inherit;
 	background: transparent;
 	box-sizing: border-box;
+	text-align: center;
+	display: inline;
 }
 
 .carrotHR__input:disabled {

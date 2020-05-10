@@ -5,7 +5,6 @@ import Settings from './Settings'
 
 const mapStateToProps = (state) => {
   	return {
-		schedules: state.schedules,
 		is_absences_layer: state.settings.is_absences_layer,
 		is_time_layer: state.settings.is_time_layer,
 	};
@@ -37,7 +36,7 @@ class Navigation extends Component {
 	}
 
 	render() {
-		const { schedules, is_absences_layer, is_time_layer, onSave, onGenerate, onClear, onAbsences, onWorkTime, onUndo, onRedo } = this.props;
+		const { is_absences_layer, is_time_layer, onSave, onGenerate, onClear, onAbsences, onWorkTime, onUndo, onRedo } = this.props;
 
 		return ( <>
 			<Navbar bg="light">
@@ -56,7 +55,6 @@ class Navigation extends Component {
 				<Button className="mr-2" variant="outline-dark" onClick={ onRedo } ><b> Przywróć </b></Button>
 				<input ref={ input => this.fileUploader = input } className="d-none" type="file" onChange={ (e) => this.handleOnLoaderChange(e) }/>
 			</Navbar>
-			<Button >{ schedules.map(schedule => { return ( <p key={ Math.random() }>{ schedule.id }</p> ) } ) }</Button>
 		</> );
 	}
 }
