@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Modal, Container, Row, Col, Button, Form, Table } from 'react-bootstrap';
-import { getDayShortName, getDatesFromPeriod } from '../helpers'
+import { isShiftValid, isTimeValid, getDayShortName, getDatesFromPeriod } from '../helpers'
 
 const moment = require('moment')
 
@@ -51,10 +51,21 @@ const EmployeeModal = (props) => {
 }
 
 const ScheduleCell = React.memo((props) => {
+	const dispatch = useDispatch()
+	const schedules = useSelector( state => state.schedules )
+	let schedule_id = `${props.employee_id}:${props.date}`
+
+	let tdClassName = "text-center align-middle p-0"
+	if ( moment( props.date ).format("ddd").toLowerCase() === "sun" ) tdClassName += " carrotHR__field--sunday"
+	if ( schedules[schedule_id]?.preference === true ) tdClassName += " carrotHR__field--preference"
+	if ( schedules[schedule_id] ) {
+		if ( isTimeValid( schedules[schedule_id]?.begin ) === false || isTimeValid( schedules[schedule_id]?.cease ) === false ) tdClassName += " carrotHR__field--warning"
+	}
+
 	return (
-		<td className="text-center align-middle p-0">
-			<Form.Control className="carrotHR__input" type="text" size="sm"/>
-			<Form.Control className="carrotHR__input" type="text" size="sm"/>
+		<td className={ tdClassName }>
+			<Form.Control className="carrotHR__input" type="text" size="sm" value={ schedules[schedule_id]?.begin } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "begin", value: e.target.value}) }/>
+			<Form.Control className="carrotHR__input" type="text" size="sm" value={ schedules[schedule_id]?.cease } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "cease", value: e.target.value}) }/>
 		</td>
 	)
 });
@@ -67,7 +78,7 @@ const ScheduleRow = React.memo((props) => {
 			<th className="text-center">{ props.no }</th>
 			<th className="text-nowrap" onClick={ props.onSignatureClick }>{ props.employee.signature }</th>
 			{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
-				<ScheduleCell />
+				<ScheduleCell date={ date } employee_id={ props.employee_id } employee={ props.employee }/>
 			)}) }
 		</tr>
 	)

@@ -21,7 +21,7 @@ const BillingPeriod = (props) => {
 function Settings() {
 	const [modalShow, setModalShow] = useState(false);
 	const dispatch = useDispatch();
-	const { billing_period, billing_period_type, daily_time, daily_break, weekly_break, free_days, shifts_crew } = useSelector( state => state.settings );
+	const { shifts_time, billing_period, billing_period_type, daily_time, daily_break, weekly_break, free_days, shifts_crew } = useSelector( state => state.settings );
 	const holidays = useSelector( state => state.holidays );
 
 	return (<>
@@ -143,6 +143,37 @@ function Settings() {
 										} else {
 											return false;
 										}
+									}) }
+								</tbody>
+							</Table>
+						</Col>
+					</Row>
+					<Row className="show-grid align-items-center mb-2">
+						<Col> Prefoerowany szablon zmian: </Col>
+					</Row>
+					<Row className="show-grid align-items-center mb-2">
+						<Col xs={12}>
+							<Table bordered>
+								<thead>
+									<tr>
+										<th>Zmiana:</th>
+										<th className="text-center w-15">Rozpoczęcie</th>
+										<th className="text-center w-15">Zakończenie</th>
+									</tr>
+								</thead>
+								<tbody>
+									{ Object.entries(shifts_time).map(([key, obj]) => {
+										return (
+											<tr>
+												<td>{ key }</td>
+												<td className="text-center w-15">
+													<Form.Control className="text-center" type="text" size="sm" value={ shifts_time[key].begin } onChange={ (e) => dispatch({ type: "SHIFTS_TIME", key: key, property: "begin", value: e.target.value })} />
+												</td>
+												<td className="text-center w-15">
+													<Form.Control className="text-center" type="text" size="sm" value={ shifts_time[key].cease } onChange={ (e) => dispatch({ type: "SHIFTS_TIME", key: key, property: "cease", value: e.target.value })} />
+												</td>
+											</tr>
+										)
 									}) }
 								</tbody>
 							</Table>

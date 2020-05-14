@@ -1,15 +1,22 @@
-const schedulesReducer = (state = [], action) => {
+const initialSchedule = {
+	begin: null,
+	cease: null,
+	preference: true
+}
+
+const schedulesReducer = (state = { }, action) => {
 	switch (action.type) {
-		case 'GENERATE': {
-			state = state.slice()
-			state.push({ id: '#' + Math.floor(Math.random() * 16777215).toString(16), status: 'success' })
-			console.log( state )
-			return [ ...state ]
+		case 'EDIT_SCHEDULE': {
+			let schedule = state[ action.schedule_id ] || { ...initialSchedule };
+			schedule[ action.property ] = action.value
+
+			return {
+				...state,
+				[ action.schedule_id ]: schedule
+			}
 		}
-		case 'CLEAR': {
-			state = state.slice()
-			state.length = 0
-			return [ ...state ]
+		case 'CLEAR_SCHEDULE': {
+			return { ...state }
 		}
 		default:
 			return state;

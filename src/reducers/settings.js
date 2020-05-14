@@ -25,6 +25,11 @@ const initialState = {
 		thu: { shift_1: 4, shift_2: 4, shift_3: 0 },
 		fri: { shift_1: 4, shift_2: 4, shift_3: 0 },
 		sat: { shift_1: 5, shift_2: 4, shift_3: 0 },
+	},
+	shifts_time: {
+		shift_1: { begin: "6:00", cease: "14:00" },
+		shift_2: { begin: "14:00", cease: "22:00" },
+		shift_3: { begin: "22:00", cease: "6:00" },
 	}
 }
 
@@ -70,6 +75,11 @@ const settingsReducer = ( state = initialState, action ) => {
 				shifts_crew[ action.key ][ action.shift ] = action.value;
 			}
 			return { ...state, shifts_crew }
+		}
+		case 'SHIFTS_TIME': {
+			let shifts_time = state.shifts_time;
+			shifts_time[ action.key ][ action.property ] = action.value;
+			return { ...state, shifts_time }
 		}
 		case 'ABSENCES': {
 			state.is_absences_layer = ! state.is_absences_layer

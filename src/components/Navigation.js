@@ -14,7 +14,7 @@ const mapDispatchToProps = (dispatch) => {
 		onSave: () => dispatch({ type: 'SAVE' }),
 		onLoaded: (payload) => dispatch({ type: 'LOADED', payload: payload }),
 		onGenerate: () => dispatch({ type: 'GENERATE' }),
-		onClear: () => dispatch({ type: 'CLEAR' }),
+		onClear: () => dispatch({ type: 'CLEAR_SCHEDULE' }),
 		onAbsences: () => dispatch({ type: 'ABSENCES' }),
 		onWorkTime: () => dispatch({ type: 'WORK_TIME' }),
 		onUndo: () => dispatch({ type: 'UNDO' }),

@@ -46,12 +46,6 @@
 	text-transform: uppercase;
 }
 
-.carrotHR__input--employee {
-	width: 100%;
-	text-align: left;
-	padding: 0;
-}
-
 .carrotHR__field--preference {
 	background: transparentize($purple, .5);
 	color: white !important;
@@ -64,7 +58,6 @@
 
 .carrotHR__field--sunday {
 	background: transparentize($info, .3);
-	// border-top-color: $info !important;
 	color: white !important;
 }
 
@@ -79,7 +72,6 @@
 	border: none;
 	padding: 0 !important;
 }
-
 
 *::-webkit-scrollbar {
   width: 16px;

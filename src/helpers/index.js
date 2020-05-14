@@ -12,7 +12,13 @@ export const getDayShortName = ( en ) => {
 	return PL_DAYS_SHORT[ en ];
 }
 
+let datesFromPeriodCache = {}
 export const getDatesFromPeriod = ( period, type ) => {
+	let cacheId = `${type}:${period}`
+	if ( datesFromPeriodCache[cacheId] !== undefined ) {
+		return datesFromPeriodCache[cacheId]
+	}
+
 	let dates = [];
 
 	if ( type === "QUARTER" ) {
@@ -24,6 +30,8 @@ export const getDatesFromPeriod = ( period, type ) => {
 		  	dates.push( m.format("YYYY-MM-DD") );
 		}
 	}
+
+	datesFromPeriodCache[cacheId] = dates
 
 	return dates;
 }
@@ -39,4 +47,14 @@ const QUARTERS_NAME = { 1: "I kwartał", 2: "II kwartał", 3: "III kwartał", 4:
 export const getQuarterName = ( date ) => {
 	let m = moment(date);
 	return `${ QUARTERS_NAME[ m.format("Q") ] } ${m.format("YYYY")}`
+}
+
+export const isTimeValid = ( time ) => {
+	let reg = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/;
+	return reg.test(time);
+}
+
+export const isShiftValid = ( value ) => {
+	let shifts = ["1", "2", "3", "W", "WS", "PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"];
+	return shifts.includes( value )
 }

@@ -9,17 +9,18 @@ const employeesReducer = (state = initialState, action) => {
 				[ next_employee_id++ ]: {
 					signature: action.value,
 					time_contract: 1,
+
 					role: 'PRACOWNIK'
 				}
 			}
 		}
 		case 'EMPLOYEE_UPDATE': {
+			let employee = state[ action.id ];
+			employee[ action.field ] = action.value;
+
 			return {
 				...state,
-				[ action.id ] : {
-					...state[ action.id ],
-					[ action.field ]: action.value
-				}
+				[ action.id ]: employee
 			}
 		}
 		default:
