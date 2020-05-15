@@ -1,4 +1,4 @@
-const initialSchedule = {
+-watchconst initialSchedule = {
 	begin: "",
 	cease: "",
 	preference: true

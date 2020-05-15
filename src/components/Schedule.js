@@ -52,7 +52,7 @@ const EmployeeModal = (props) => {
 
 const ScheduleCell = React.memo((props) => {
 	const dispatch = useDispatch()
-	const { daily_time } = useSelector( state => state.settings )
+	const { daily_time } = useSelector( state => state.settings ) 
 
 	let schedule_id = `${props.employee_id}:${props.date}`
 	const schedule = useSelector( state => state.schedules[ schedule_id ] ) || null
