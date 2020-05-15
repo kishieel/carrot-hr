@@ -1,3 +1,5 @@
+import { calculateTimeBase } from '../helpers'
+
 const initialState = { }
 let next_employee_id = 1;
 
@@ -9,7 +11,6 @@ const employeesReducer = (state = initialState, action) => {
 				[ next_employee_id++ ]: {
 					signature: action.value,
 					time_contract: 1,
-
 					role: 'PRACOWNIK'
 				}
 			}

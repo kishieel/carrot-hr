@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Modal, Container, Row, Col, Button, Form, Table } from 'react-bootstrap';
-import { isShiftValid, isTimeFormatValid, getDayShortName, getDatesFromPeriod } from '../helpers'
+import { calculateTimeBase, isShiftValid, isTimeFormatValid, getDayShortName, getDatesFromPeriod } from '../helpers'
 
 const moment = require('moment')
 
@@ -52,12 +52,14 @@ const EmployeeModal = (props) => {
 
 const ScheduleCell = React.memo((props) => {
 	const dispatch = useDispatch()
-	const { daily_time } = useSelector( state => state.settings )
+	const { daily_time, free_days } = useSelector( state => state.settings )
 
 	let schedule_id = `${props.employee_id}:${props.date}`
 	const schedule = useSelector( state => state.schedules[ schedule_id ] ) || null
 
 	let tdClassName = "text-center align-middle p-0"
+	let beginClassName = "carrotHR__input"
+	let ceaseClassName = "carrotHR__input"
 	if ( moment( props.date ).format("ddd").toLowerCase() === "sun" ) tdClassName += " carrotHR__field--sunday"
 
 	if ( schedule !== null ) {
@@ -68,9 +70,11 @@ const ScheduleCell = React.memo((props) => {
 
 			let diff = ceaseDate.diff( beginDate, 'hours' )
 			if ( diff <= 0 ) diff += 24;
-			// console.log( props.date, diff )
 
-			if ( diff > daily_time ) tdClassName += " carrotHR__field--warning"
+			if ( diff > moment.duration(daily_time).asHours() ) tdClassName += " carrotHR__field--warning"
+		} else if ( isShiftValid( schedule.begin, free_days ) === true ) {
+			tdClassName += " carrotHR__field--free"
+			ceaseClassName += " d-none"
 		} else {
 			tdClassName += " carrotHR__field--warning"
 		}
@@ -78,19 +82,47 @@ const ScheduleCell = React.memo((props) => {
 
 	return (
 		<td className={ tdClassName }>
-			<Form.Control className="carrotHR__input" type="text" size="sm" value={ schedule?.begin || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "begin", value: e.target.value}) }/>
-			<Form.Control className="carrotHR__input" type="text" size="sm" value={ schedule?.cease || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "cease", value: e.target.value}) }/>
+			<Form.Control className={ beginClassName } type="text" size="sm" value={ schedule?.begin || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "begin", value: e.target.value}) }/>
+			<Form.Control className={ ceaseClassName } type="text" size="sm" value={ schedule?.cease || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "cease", value: e.target.value}) }/>
 		</td>
 	)
 })
 
+const workTimeSelector = (schedules, employee_id) => {
+	let work_time = 0
+	Object.entries(schedules).filter((key, obj) => {
+		let e = parseInt( `${key}`.split(":")[0] )
+		return e === parseInt( employee_id );
+	}).map(([key, obj]) => {
+		if ( isTimeFormatValid( obj.begin ) === true && isTimeFormatValid( obj.cease ) === true ) {
+			let date = `${key}`.split(":")[1]
+			let beginDate = moment(`${date} ${obj.begin}`)
+			let ceaseDate = moment(`${date} ${obj.cease}`)
+
+			let diff = ceaseDate.diff( beginDate, 'hours', true )
+			work_time += diff
+		}
+	})
+	return work_time;
+}
+
 const ScheduleRow = (props) => {
-	const { billing_period, billing_period_type } = useSelector( state => state.settings );
+	const { billing_period, billing_period_type, free_days } = useSelector( state => state.settings );
+	let time_left = calculateTimeBase( billing_period, billing_period_type, free_days ) * props.employee.time_contract
+
+	const work_time = useSelector( state => workTimeSelector(state.schedules, props.employee_id) )
+	time_left -= work_time
+
+	let trClassName = "";
+	let timeLeftClassName = "text-center"
+	if ( time_left < 0 ) trClassName += " carrotHR__field--warning"
+	if ( time_left > 0 ) timeLeftClassName += " carrotHR__field--danger"
 
 	return (
-		<tr>
+		<tr className={ trClassName }>
 			<th className="text-center">{ props.no }</th>
 			<th className="text-nowrap" onClick={ props.onSignatureClick }>{ props.employee.signature }</th>
+			<th className={ timeLeftClassName }>{ time_left }</th>
 			{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
 				<ScheduleCell key={ `schedule-cell-${date}-${props.employee_id}` } date={ date } employee_id={ props.employee_id } />
 			)}) }
@@ -112,6 +144,7 @@ function Schedule() {
 				<tr>
 					<th>#</th>
 					<th className="carrotHR__signature">Pracownik</th>
+					<th>Godz.</th>
 					{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
 						<th key={ `header-${date}`} className="text-nowrap text-center p-0">
 							<span className="px-3">{ moment(date).format('DD-MM') }</span><hr className="m-0"/>
@@ -129,6 +162,7 @@ function Schedule() {
 					<th className="text-nowrap">
 						<Form.Control type="text" size="sm" placeholder="DODAJ PRACOWNIKA" onKeyDown={ (e) => { ( e.key === 'Enter' ) ? (() => { dispatch({ type: 'EMPLOYEE_CREATE', value: e.target.value }); e.target.value = ""; })() : (() => {})() } }/>
 					</th>
+					<th></th>
 					{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
 						<td key={ `footer-row-${date}` } className="text-center"> </td>
 					)}) }

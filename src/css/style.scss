@@ -56,13 +56,23 @@
 	color: white !important;
 }
 
+.carrotHR__field--free {
+	background: transparentize($green, .3);
+	color: white !important;
+}
+
 .carrotHR__field--sunday {
 	background: transparentize($info, .3);
 	color: white !important;
 }
 
+.carrotHR__field--danger {
+	background: transparentize($yellow, .3);
+	color: white !important;
+}
+
 .carrotHR__field--warning {
-	background: transparentize($red, .3);
+	background: transparentize($red, .3) !important;
 	color: white !important;
 }
 

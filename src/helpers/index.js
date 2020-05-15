@@ -54,7 +54,32 @@ export const isTimeFormatValid = ( time ) => {
 	return reg.test(time);
 }
 
-export const isShiftValid = ( value ) => {
-	let shifts = ["1", "2", "3", "W", "WS", "PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"];
+export const isShiftValid = ( value, free_days ) => {
+	let shifts = ["1", "2", "3", "W", "WS"];
+	Object.entries(free_days).map(([key, obj]) => {
+		if ( obj !== null ) shifts.push( obj.index )
+	})
 	return shifts.includes( value )
+}
+
+let timeBaseCache = {}
+export const calculateTimeBase = ( period, type, free_days ) => {
+	let cacheId = `${type}:${period}:${ Object.entries(free_days).filter(([key, obj]) => { return ( obj !== null ) }).map(([key, obj]) => { return key }).join('-') }`
+	if ( timeBaseCache[cacheId] !== undefined ) {
+		return timeBaseCache[cacheId]
+	}
+
+	let time = 0
+	let dates = getDatesFromPeriod( period, type )
+
+	for ( const date of dates ) {
+		let free_day = free_days[ moment(date).format("ddd").toLowerCase() ] || null
+		// let holiday = holidays[ date ] || null
+		// Tymczasowe.. trzeba dorobic generator
+		if ( free_day === null && !["2020-01-01", "2020-01-06", "2020-04-12", "2020-04-13", "2020-05-01", "2020-05-03", "2020-05-31", "2020-06-11", "2020-08-15", "2020-11-01", "2020-11-11", "2020-12-25", "2020-12-26"].includes(date) ) time += 8
+	}
+
+	timeBaseCache[cacheId] = time
+
+	return time;
 }
