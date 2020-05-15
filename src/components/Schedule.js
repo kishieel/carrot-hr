@@ -52,7 +52,7 @@ const EmployeeModal = (props) => {
 
 const ScheduleCell = React.memo((props) => {
 	const dispatch = useDispatch()
-	const { daily_time } = useSelector( state => state.settings ) 
+	const { daily_time } = useSelector( state => state.settings )
 
 	let schedule_id = `${props.employee_id}:${props.date}`
 	const schedule = useSelector( state => state.schedules[ schedule_id ] ) || null
@@ -75,7 +75,6 @@ const ScheduleCell = React.memo((props) => {
 			tdClassName += " carrotHR__field--warning"
 		}
 	}
-	console.log( props.date, schedule )
 
 	return (
 		<td className={ tdClassName }>
@@ -83,9 +82,9 @@ const ScheduleCell = React.memo((props) => {
 			<Form.Control className="carrotHR__input" type="text" size="sm" value={ schedule?.cease || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "cease", value: e.target.value}) }/>
 		</td>
 	)
-});
+})
 
-const ScheduleRow = React.memo((props) => {
+const ScheduleRow = (props) => {
 	const { billing_period, billing_period_type } = useSelector( state => state.settings );
 
 	return (
@@ -97,7 +96,7 @@ const ScheduleRow = React.memo((props) => {
 			)}) }
 		</tr>
 	)
-})
+}
 
 function Schedule() {
 	const [modalShow, setModalShow] = useState(false);
