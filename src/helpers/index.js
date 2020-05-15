@@ -22,11 +22,11 @@ export const getDatesFromPeriod = ( period, type ) => {
 	let dates = [];
 
 	if ( type === "QUARTER" ) {
-		for (var m = moment( period ); m.isBefore( moment( period ).add(1, 'quarter') ); m.add(1, 'days')) {
+		for (let m = moment( period ); m.isBefore( moment( period ).add(1, 'quarter') ); m.add(1, 'days')) {
 		  	dates.push( m.format("YYYY-MM-DD") );
 		}
 	} else {
-		for (var m = moment( period ); m.isBefore( moment( period ).add(1, 'month') ); m.add(1, 'days')) {
+		for (let m = moment( period ); m.isBefore( moment( period ).add(1, 'month') ); m.add(1, 'days')) {
 		  	dates.push( m.format("YYYY-MM-DD") );
 		}
 	}
@@ -49,7 +49,7 @@ export const getQuarterName = ( date ) => {
 	return `${ QUARTERS_NAME[ m.format("Q") ] } ${m.format("YYYY")}`
 }
 
-export const isTimeValid = ( time ) => {
+export const isTimeFormatValid = ( time ) => {
 	let reg = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/;
 	return reg.test(time);
 }

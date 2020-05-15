@@ -1,6 +1,6 @@
 const initialSchedule = {
-	begin: null,
-	cease: null,
+	begin: "",
+	cease: "",
 	preference: true
 }
 

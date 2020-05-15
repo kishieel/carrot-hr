@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Modal, Container, Row, Col, Button, Form, Table } from 'react-bootstrap';
-import { isShiftValid, isTimeValid, getDayShortName, getDatesFromPeriod } from '../helpers'
+import { isShiftValid, isTimeFormatValid, getDayShortName, getDatesFromPeriod } from '../helpers'
 
 const moment = require('moment')
 
@@ -52,20 +52,35 @@ const EmployeeModal = (props) => {
 
 const ScheduleCell = React.memo((props) => {
 	const dispatch = useDispatch()
-	const schedules = useSelector( state => state.schedules )
+	const { daily_time } = useSelector( state => state.settings )
+
 	let schedule_id = `${props.employee_id}:${props.date}`
+	const schedule = useSelector( state => state.schedules[ schedule_id ] ) || null
 
 	let tdClassName = "text-center align-middle p-0"
 	if ( moment( props.date ).format("ddd").toLowerCase() === "sun" ) tdClassName += " carrotHR__field--sunday"
-	if ( schedules[schedule_id]?.preference === true ) tdClassName += " carrotHR__field--preference"
-	if ( schedules[schedule_id] ) {
-		if ( isTimeValid( schedules[schedule_id]?.begin ) === false || isTimeValid( schedules[schedule_id]?.cease ) === false ) tdClassName += " carrotHR__field--warning"
+
+	if ( schedule !== null ) {
+		if ( schedule.preference === true ) tdClassName += " carrotHR__field--preference"
+		if ( isTimeFormatValid( schedule.begin ) === true && isTimeFormatValid( schedule.cease ) === true ) {
+			let beginDate = moment(`${props.date} ${schedule.begin}`)
+			let ceaseDate = moment(`${props.date} ${schedule.cease}`)
+
+			let diff = ceaseDate.diff( beginDate, 'hours' )
+			if ( diff <= 0 ) diff += 24;
+			// console.log( props.date, diff )
+
+			if ( diff > daily_time ) tdClassName += " carrotHR__field--warning"
+		} else {
+			tdClassName += " carrotHR__field--warning"
+		}
 	}
+	console.log( props.date, schedule )
 
 	return (
 		<td className={ tdClassName }>
-			<Form.Control className="carrotHR__input" type="text" size="sm" value={ schedules[schedule_id]?.begin } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "begin", value: e.target.value}) }/>
-			<Form.Control className="carrotHR__input" type="text" size="sm" value={ schedules[schedule_id]?.cease } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "cease", value: e.target.value}) }/>
+			<Form.Control className="carrotHR__input" type="text" size="sm" value={ schedule?.begin || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "begin", value: e.target.value}) }/>
+			<Form.Control className="carrotHR__input" type="text" size="sm" value={ schedule?.cease || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "cease", value: e.target.value}) }/>
 		</td>
 	)
 });
@@ -78,7 +93,7 @@ const ScheduleRow = React.memo((props) => {
 			<th className="text-center">{ props.no }</th>
 			<th className="text-nowrap" onClick={ props.onSignatureClick }>{ props.employee.signature }</th>
 			{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
-				<ScheduleCell date={ date } employee_id={ props.employee_id } employee={ props.employee }/>
+				<ScheduleCell key={ `schedule-cell-${date}-${props.employee_id}` } date={ date } employee_id={ props.employee_id } />
 			)}) }
 		</tr>
 	)
@@ -88,9 +103,7 @@ function Schedule() {
 	const [modalShow, setModalShow] = useState(false);
 	const [modalEmployeeID, setModalEmployeeID] = useState(0)
 	const dispatch = useDispatch();
-	const { schedules } = useSelector( state => state.schedules );
 	const { billing_period, billing_period_type } = useSelector( state => state.settings );
-	const dates = useSelector( state => state.dates );
 	const employees = useSelector( state => state.employees );
 
 	return ( <>
@@ -101,7 +114,7 @@ function Schedule() {
 					<th>#</th>
 					<th className="carrotHR__signature">Pracownik</th>
 					{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
-						<th className="text-nowrap text-center p-0">
+						<th key={ `header-${date}`} className="text-nowrap text-center p-0">
 							<span className="px-3">{ moment(date).format('DD-MM') }</span><hr className="m-0"/>
 							<span className="px-3">{ getDayShortName( moment(date).format('ddd').toLowerCase() ) }</span>
 						</th>
@@ -110,7 +123,7 @@ function Schedule() {
 			</thead>
 			<tbody>
 				{ Object.entries(employees).map(([employee_id, employee], i) => { return (
-					<ScheduleRow no={ i + 1 } employee={ employee } employee_id={ employee_id } onSignatureClick={ () => { setModalEmployeeID( employee_id ); setModalShow(true) } }/>
+					<ScheduleRow key={ `schedule-row-${employee_id}` } no={ i + 1 } employee={ employee } employee_id={ employee_id } onSignatureClick={ () => { setModalEmployeeID( employee_id ); setModalShow(true) } }/>
 				)})}
 				<tr>
 					<th className="text-center">#</th>
@@ -118,7 +131,7 @@ function Schedule() {
 						<Form.Control type="text" size="sm" placeholder="DODAJ PRACOWNIKA" onKeyDown={ (e) => { ( e.key === 'Enter' ) ? (() => { dispatch({ type: 'EMPLOYEE_CREATE', value: e.target.value }); e.target.value = ""; })() : (() => {})() } }/>
 					</th>
 					{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
-						<td className="text-center"> </td>
+						<td key={ `footer-row-${date}` } className="text-center"> </td>
 					)}) }
 				</tr>
 			</tbody>

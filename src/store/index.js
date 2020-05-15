@@ -1,4 +1,4 @@
-import { createStore, combineReducers } from 'redux';
+import { createStore } from 'redux';
 import defaultReducer from '../reducers/default'
 import schedulesReducer from '../reducers/schedules'
 import settingsReducer from '../reducers/settings'
@@ -12,12 +12,6 @@ const reducer = (state = {}, action) => {
 		employees: employeesReducer(state.employees, action),
 	};
 };
-// const reducer = combineReducers({
-// 	schedules: schedulesReducer,
-// 	employees: employeesReducer,
-// 	settings: settingsReducer,
-// 	dates: datesReducer
-// })
 
 const store = createStore(reducer);
 

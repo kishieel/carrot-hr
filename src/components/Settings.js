@@ -83,7 +83,7 @@ function Settings() {
 					<Row className="show-grid align-items-center mb-3">
 						<Col xs={12} className="mb-1"> Dni wolne: </Col>
 						{ DAYS.map(key => { return (
-							<Col xs={6} md={4} lg={3}>
+							<Col key={ `free-days-checkbox-${key}` } xs={6} md={4} lg={3}>
 								<Form.Check className="pt-1" type="checkbox" id={`checkbox-${key}`} label={`${ getDayName( key ) }`} onChange={ (e) => dispatch({ type: 'FREE_DAYS', key: key, value: e.target.checked }) } checked={ ( free_days[key] !== null ) ? true : false } custom />
 							</Col>
 						) }) }
@@ -91,7 +91,7 @@ function Settings() {
 					{ Object.entries(free_days).map(([key, value]) => {
 						if ( value !== null ) {
 							return (
-								<Row className="show-grid align-items-center mb-2">
+								<Row key={ `free-days-table-${key}` } className="show-grid align-items-center mb-2">
 									<Col >
 										{ getDayName( key ) }
 									</Col>
@@ -127,7 +127,7 @@ function Settings() {
 									{ ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map(key => {
 										if ( ( free_days[key] === null ) || ( free_days[key] !== null && free_days[key].permanent === false ) ) {
 											return (
-												<tr>
+												<tr key={ `shifts-crew-${key}` } >
 													<td>{ getDayName( key ) }</td>
 													<td className="text-center w-15">
 														<Form.Control className="text-center" type="text" size="sm" value={ shifts_crew[key].shift_1 } onChange={ (e) => dispatch({ type: "SHIFTS_CREW", key: key, shift: "shift_1", value: e.target.value })} />
@@ -164,7 +164,7 @@ function Settings() {
 								<tbody>
 									{ Object.entries(shifts_time).map(([key, obj]) => {
 										return (
-											<tr>
+											<tr key={ `shift-time-${key}` } >
 												<td>{ key }</td>
 												<td className="text-center w-15">
 													<Form.Control className="text-center" type="text" size="sm" value={ shifts_time[key].begin } onChange={ (e) => dispatch({ type: "SHIFTS_TIME", key: key, property: "begin", value: e.target.value })} />
