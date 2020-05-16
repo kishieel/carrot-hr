@@ -7,35 +7,36 @@ const moment = require('moment')
 
 // waliduje dzien
 const ScheduleCell = React.memo((props) => {
-	console.log("Wywołano ScheduleCell dla : ", props.date)
 
 	const dispatch = useDispatch()
+	const { date, employee_id, isWeeklyBreakMet } = props
+
 	const { daily_time, daily_break, free_days } = useSelector( state => state.settings )
 
-	let schedule_id = `${props.employee_id}:${props.date}`
+	let schedule_id = `${employee_id}:${date}`
 	const schedule = useSelector( state => state.schedules[ schedule_id ] ) || null
 
-	let prev_date = moment(props.date).add(-1, 'days').format("YYYY-MM-DD");
-	let prev_schedule_id = `${props.employee_id}:${prev_date}`
+	let prev_date = moment(date).add(-1, 'days').format("YYYY-MM-DD");
+	let prev_schedule_id = `${employee_id}:${prev_date}`
 	const prev_schedule = useSelector( state => state.schedules[ prev_schedule_id ] ) || null
 
 	let tdClassName = "text-center align-middle p-0"
 	let beginClassName = "carrotHR__input"
 	let ceaseClassName = "carrotHR__input"
-	if ( moment( props.date ).format("ddd").toLowerCase() === "sun" ) tdClassName += " carrotHR__field--sunday"
+	if ( moment( date ).format("ddd").toLowerCase() === "sun" ) tdClassName += " carrotHR__field--sunday"
 
 	if ( schedule !== null ) {
 		if ( schedule.preference === true ) tdClassName += " carrotHR__field--preference"
 		if ( isTimeFormatValid( schedule.begin ) === true && isTimeFormatValid( schedule.cease ) === true ) {
-			let beginDate = moment(`${props.date} ${schedule.begin}`)
-			let ceaseDate = moment(`${props.date} ${schedule.cease}`)
+			let beginDate = moment(`${date} ${schedule.begin}`)
+			let ceaseDate = moment(`${date} ${schedule.cease}`)
 
 			let diff = ceaseDate.diff( beginDate, 'hours', true )
 			if ( diff <= 0 ) diff += 24;
 
 			if ( diff > moment.duration(daily_time).asHours() ) {
 				tdClassName += " carrotHR__field--warning"
-				console.warn(`${props.employee_id}:${props.date} -> Przekroczono maksymalny czas pracy.`)
+				console.warn(`${employee_id}:${date} -> Przekroczono maksymalny czas pracy.`)
 			}
 
 			if ( prev_schedule !== null ) {
@@ -44,7 +45,7 @@ const ScheduleCell = React.memo((props) => {
 				let daysDiff = beginDate.diff( preventCeaseDate, 'hours', true )
 				if ( daysDiff < moment.duration(daily_break).asHours() ) {
 					tdClassName += " carrotHR__field--warning"
-					console.warn(`${props.employee_id}:${props.date} -> Złamano dobę pracowniczą.`)
+					console.warn(`${employee_id}:${date} -> Złamano dobę pracowniczą.`)
 				}
 			}
 		} else if ( isShiftValid( schedule.begin, free_days ) === true ) {
@@ -54,6 +55,8 @@ const ScheduleCell = React.memo((props) => {
 			tdClassName += " carrotHR__field--warning"
 		}
 	}
+
+	if ( isWeeklyBreakMet === false ) tdClassName += " carrotHR__field--warning"
 
 	return (
 		<td className={ tdClassName }>

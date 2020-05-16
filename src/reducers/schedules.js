@@ -1,4 +1,4 @@
-const schedulesReducer = (state = { }, action) => {
+const schedulesReducer = (state = { "1:2020-01-02": { begin: "6:00", cease: "14:00", preference: true },"1:2020-01-03": { begin: "6:00", cease: "14:00", preference: true },"1:2020-01-04": { begin: "6:00", cease: "14:00", preference: true },"1:2020-01-05": { begin: "6:00", cease: "14:00", preference: true } }, action) => {
 	switch (action.type) {
 		case 'EDIT_SCHEDULE': {
 			let schedule = { ...state[ action.schedule_id ] } || {};
