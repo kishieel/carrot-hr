@@ -1,134 +1,11 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Modal, Container, Row, Col, Button, Form, Table } from 'react-bootstrap';
-import { calculateTimeBase, isShiftValid, isTimeFormatValid, getDayShortName, getDatesFromPeriod } from '../helpers'
+import { Form, Table } from 'react-bootstrap';
+import { chunk, calculateTimeBase, isShiftValid, isTimeFormatValid, getDayShortName, getDatesFromPeriod } from '../helpers'
+import EmployeeSettings from './EmployeeSettings.js'
+import ScheduleRow from './ScheduleRow.js'
 
 const moment = require('moment')
-
-const EmployeeModal = (props) => {
-	const dispatch = useDispatch();
-
-	return (
-		<Modal show={ props.modalShow } onHide={ props.onHide } size="lg">
-			<Modal.Header closeButton>
-				<Modal.Title>
-					Panel - { props.employee?.signature }
-				</Modal.Title>
-			</Modal.Header>
-			<Modal.Body>
-				<Container>
-					<Row className="show-grid align-items-center mb-2">
-						<Col sm={6} lg={8}> Dane personalne: </Col>
-						<Col sm={6} lg={4}>
-							<Form.Control type="text" value={ props.employee?.signature } onChange={ (e) => dispatch({ type: 'EMPLOYEE_UPDATE', id: props.employee_id, field: 'signature', value: e.target.value })}/>
-						</Col>
-					</Row>
-					<Row className="show-grid align-items-center mb-2">
-						<Col sm={6} lg={8}> Wymiar czasu pracy: </Col>
-						<Col sm={6} lg={4}>
-							<Form.Control as="select" value={ props.employee?.time_contract } onChange={ (e) => dispatch({ type: 'EMPLOYEE_UPDATE', id: props.employee_id, field: 'time_contract', value: e.target.value })} custom>
-								<option value={1}>Pełny etat</option>
-								<option value={0.75}>3/4 etatu</option>
-								<option value={0.5}>Pół etatu</option>
-								<option value={0.25}>Ćwierć etatu</option>
-							</Form.Control>
-						</Col>
-					</Row>
-					<Row className="show-grid align-items-center mb-2">
-						<Col sm={6} lg={8}> Stanowisko: </Col>
-						<Col sm={6} lg={4}>
-							<Form.Control type="text" value={ props.employee?.role } onChange={ (e) => dispatch({ type: 'EMPLOYEE_UPDATE', id: props.employee_id, field: 'role', value: e.target.value.toUpperCase() })}/>
-						</Col>
-					</Row>
-				</Container>
-			</Modal.Body>
-			<Modal.Footer>
-				<Button variant="danger" onClick={ props.onHide }> Usuń </Button>
-				<Button onClick={ props.onHide }> Zamknij </Button>
-			</Modal.Footer>
-		</Modal>
-	)
-}
-
-const ScheduleCell = React.memo((props) => {
-	const dispatch = useDispatch()
-	const { daily_time, free_days } = useSelector( state => state.settings )
-
-	let schedule_id = `${props.employee_id}:${props.date}`
-	const schedule = useSelector( state => state.schedules[ schedule_id ] ) || null
-
-	let tdClassName = "text-center align-middle p-0"
-	let beginClassName = "carrotHR__input"
-	let ceaseClassName = "carrotHR__input"
-	if ( moment( props.date ).format("ddd").toLowerCase() === "sun" ) tdClassName += " carrotHR__field--sunday"
-
-	if ( schedule !== null ) {
-		if ( schedule.preference === true ) tdClassName += " carrotHR__field--preference"
-		if ( isTimeFormatValid( schedule.begin ) === true && isTimeFormatValid( schedule.cease ) === true ) {
-			let beginDate = moment(`${props.date} ${schedule.begin}`)
-			let ceaseDate = moment(`${props.date} ${schedule.cease}`)
-
-			let diff = ceaseDate.diff( beginDate, 'hours' )
-			if ( diff <= 0 ) diff += 24;
-
-			if ( diff > moment.duration(daily_time).asHours() ) tdClassName += " carrotHR__field--warning"
-		} else if ( isShiftValid( schedule.begin, free_days ) === true ) {
-			tdClassName += " carrotHR__field--free"
-			ceaseClassName += " d-none"
-		} else {
-			tdClassName += " carrotHR__field--warning"
-		}
-	}
-
-	return (
-		<td className={ tdClassName }>
-			<Form.Control className={ beginClassName } type="text" size="sm" value={ schedule?.begin || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "begin", value: e.target.value}) }/>
-			<Form.Control className={ ceaseClassName } type="text" size="sm" value={ schedule?.cease || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "cease", value: e.target.value}) }/>
-		</td>
-	)
-})
-
-const workTimeSelector = (schedules, employee_id) => {
-	let work_time = 0
-	Object.entries(schedules).filter((key, obj) => {
-		let e = parseInt( `${key}`.split(":")[0] )
-		return e === parseInt( employee_id );
-	}).map(([key, obj]) => {
-		if ( isTimeFormatValid( obj.begin ) === true && isTimeFormatValid( obj.cease ) === true ) {
-			let date = `${key}`.split(":")[1]
-			let beginDate = moment(`${date} ${obj.begin}`)
-			let ceaseDate = moment(`${date} ${obj.cease}`)
-
-			let diff = ceaseDate.diff( beginDate, 'hours', true )
-			work_time += diff
-		}
-	})
-	return work_time;
-}
-
-const ScheduleRow = (props) => {
-	const { billing_period, billing_period_type, free_days } = useSelector( state => state.settings );
-	let time_left = calculateTimeBase( billing_period, billing_period_type, free_days ) * props.employee.time_contract
-
-	const work_time = useSelector( state => workTimeSelector(state.schedules, props.employee_id) )
-	time_left -= work_time
-
-	let trClassName = "";
-	let timeLeftClassName = "text-center"
-	if ( time_left < 0 ) trClassName += " carrotHR__field--warning"
-	if ( time_left > 0 ) timeLeftClassName += " carrotHR__field--danger"
-
-	return (
-		<tr className={ trClassName }>
-			<th className="text-center">{ props.no }</th>
-			<th className="text-nowrap" onClick={ props.onSignatureClick }>{ props.employee.signature }</th>
-			<th className={ timeLeftClassName }>{ time_left }</th>
-			{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
-				<ScheduleCell key={ `schedule-cell-${date}-${props.employee_id}` } date={ date } employee_id={ props.employee_id } />
-			)}) }
-		</tr>
-	)
-}
 
 function Schedule() {
 	const [modalShow, setModalShow] = useState(false);
@@ -138,7 +15,7 @@ function Schedule() {
 	const employees = useSelector( state => state.employees );
 
 	return ( <>
-		<EmployeeModal employee={ employees[ modalEmployeeID ] } employee_id={ modalEmployeeID } modalShow={ modalShow } onHide={ () => setModalShow(false) }/>
+		<EmployeeSettings employee={ employees[ modalEmployeeID ] } employee_id={ modalEmployeeID } modalShow={ modalShow } onHide={ () => setModalShow(false) }/>
 		<Table className="carrotHR__table mb-0" striped bordered>
 			<thead>
 				<tr>

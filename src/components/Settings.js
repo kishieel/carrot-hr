@@ -22,7 +22,6 @@ function Settings() {
 	const [modalShow, setModalShow] = useState(false);
 	const dispatch = useDispatch();
 	const { shifts_time, billing_period, billing_period_type, daily_time, daily_break, weekly_break, free_days, shifts_crew } = useSelector( state => state.settings );
-	const holidays = useSelector( state => state.holidays );
 
 	return (<>
 		<Button className="mr-4" variant="outline-warning" onClick={ () => setModalShow(true) } ><b> Ustawienia </b></Button>

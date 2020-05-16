@@ -1,5 +1,3 @@
-import { calculateTimeBase } from '../helpers'
-
 const initialState = { }
 let next_employee_id = 1;
 
@@ -23,6 +21,10 @@ const employeesReducer = (state = initialState, action) => {
 				...state,
 				[ action.id ]: employee
 			}
+		}
+		case 'EMPLOYEE_REMOVE': {
+			let { [ action.employee_id ]: remove, ...res } = state;
+			return { ...res };
 		}
 		default:
 			return state;
