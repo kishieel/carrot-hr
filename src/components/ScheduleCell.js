@@ -11,7 +11,7 @@ const ScheduleCell = React.memo((props) => {
 	const dispatch = useDispatch()
 	const { date, employee_id, isWeeklyBreakMet } = props
 
-	const { daily_time, daily_break, free_days } = useSelector( state => state.settings )
+	const { daily_time, daily_break, free_days, shifts_time } = useSelector( state => state.settings )
 
 	let schedule_id = `${employee_id}:${date}`
 	const schedule = useSelector( state => state.schedules[ schedule_id ] ) || null
@@ -40,9 +40,13 @@ const ScheduleCell = React.memo((props) => {
 			}
 
 			if ( prev_schedule !== null ) {
-				let preventCeaseDate = moment(`${prev_date} ${prev_schedule.cease}`);
+				let preventScheduleBegin = moment( `${prev_date} ${prev_schedule.begin}` )
+				let preventScheduleCease = moment( `${prev_date} ${prev_schedule.cease}` )
+				if ( preventScheduleCease.diff( preventScheduleBegin ) < 0 ) {
+					preventScheduleCease.add(1, 'days')
+				}
 
-				let daysDiff = beginDate.diff( preventCeaseDate, 'hours', true )
+				let daysDiff = beginDate.diff( preventScheduleCease, 'hours', true )
 				if ( daysDiff < moment.duration(daily_break).asHours() ) {
 					tdClassName += " carrotHR__field--warning"
 					console.warn(`${employee_id}:${date} -> Złamano dobę pracowniczą.`)
@@ -60,7 +64,7 @@ const ScheduleCell = React.memo((props) => {
 
 	return (
 		<td className={ tdClassName }>
-			<Form.Control className={ beginClassName } type="text" size="sm" value={ schedule?.begin || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "begin", value: e.target.value}) }/>
+			<Form.Control className={ beginClassName } type="text" size="sm" value={ schedule?.begin || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "begin", value: e.target.value}) } onBlur={ (e) => dispatch({ type: "PROCESS_SCHEDULE", settings: { shifts_time}, schedule_id: schedule_id, value: e.target.value}) }/>
 			<Form.Control className={ ceaseClassName } type="text" size="sm" value={ schedule?.cease || "" } onChange={ (e) => dispatch({ type: "EDIT_SCHEDULE", schedule_id: schedule_id, property: "cease", value: e.target.value}) }/>
 		</td>
 	)

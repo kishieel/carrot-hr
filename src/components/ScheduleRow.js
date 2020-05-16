@@ -17,6 +17,7 @@ const workTimeSelector = (schedules, employee_id) => {
 			let ceaseDate = moment(`${date} ${obj.cease}`)
 
 			let diff = ceaseDate.diff( beginDate, 'hours', true )
+			if ( diff < 0 ) diff += 24
 			work_time += diff
 		}
 	})
