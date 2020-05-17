@@ -10,7 +10,7 @@ const GenerateButton = (props) => {
 	const dates = getDatesFromPeriod( billing_period, billing_period_type )
 
 	return (
-		<Button className="mr-2" variant="outline-success" onClick={ () => dispatch({ type: "SCHEDULE_GENERATE", employees: employees, settings: { daily_time, daily_break, weekly_break, free_days, shifts_crew, shifts_time }, dates: dates }) } ><b> Generuj </b></Button>
+		<Button className="mr-2" variant="outline-success" onClick={ () => dispatch({ type: "SCHEDULE_GENERATE", employees: employees, settings: { daily_time, daily_break, weekly_break, free_days, shifts_crew, shifts_time, billing_period, billing_period_type }, dates: dates }) } ><b> Generuj </b></Button>
 	)
 }
 

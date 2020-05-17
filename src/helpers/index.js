@@ -60,7 +60,7 @@ export const isTimeFormatValid = ( time ) => {
 }
 
 export const isShiftValid = ( value, free_days ) => {
-	let shifts = ["1", "2", "3", "W", "WS"];
+	let shifts = ["1", "2", "3", "W", "WS", "ZZ", "DU", "UW", "NP", "UO"];
 	Object.entries(free_days).map(([key, obj]) => {
 		if ( obj !== null ) shifts.push( obj.index )
 	})
@@ -87,4 +87,24 @@ export const calculateTimeBase = ( period, type, free_days ) => {
 	timeBaseCache[cacheId] = time
 
 	return time;
+}
+
+export const workTimeSelector = (schedules, employee_id, forecePreference = false ) => {
+	let work_time = 0
+	Object.entries(schedules).filter( ([key, obj]) => {
+		let [ emp_id, date_id ] = key.split(":")
+		return ( parseInt( emp_id ) === parseInt( employee_id ) && ( !forecePreference || obj.preference === true ));
+	}).map(([key, obj]) => {
+		if ( isTimeFormatValid( obj.begin ) === true && isTimeFormatValid( obj.cease ) === true ) {
+			let [ emp_id, date_id ] = key.split(":")
+			let beginDate = moment(`${date_id} ${obj.begin}`)
+			let ceaseDate = moment(`${date_id} ${obj.cease}`)
+
+			let diff = ceaseDate.diff( beginDate, 'hours', true )
+			if ( diff < 0 ) diff += 24
+			work_time += diff
+		}
+		if ( ["ZZ", "UW", "DU", "NP", "UO"].includes( obj.begin ) ) work_time += 8
+	})
+	return work_time;
 }

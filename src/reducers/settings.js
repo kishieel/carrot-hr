@@ -3,8 +3,8 @@ import { DAYS } from '../helpers'
 const initialState = {
 	is_absences_layer: false,
 	is_time_layer: false,
-	billing_period_type: "MONTH",
-	billing_period: "2020-01", /* 2020-01 */
+	billing_period_type: "QUARTER",
+	billing_period: "2020-04", /* 2020-01 */
 	daily_time: "12:00",
 	daily_break: "13:00",
 	weekly_break: "35:00",
@@ -21,15 +21,15 @@ const initialState = {
 		sun: { shift_1: 0, shift_2: 0, shift_3: 0 },
 		mon: { shift_1: 5, shift_2: 5, shift_3: 0 },
 		tue: { shift_1: 4, shift_2: 4, shift_3: 0 },
-		wed: { shift_1: 5, shift_2: 4, shift_3: 0 },
+		wed: { shift_1: 5, shift_2: 5, shift_3: 0 },
 		thu: { shift_1: 4, shift_2: 4, shift_3: 0 },
-		fri: { shift_1: 4, shift_2: 4, shift_3: 0 },
-		sat: { shift_1: 5, shift_2: 4, shift_3: 0 },
+		fri: { shift_1: 4, shift_2: 5, shift_3: 0 },
+		sat: { shift_1: 5, shift_2: 5, shift_3: 0 },
 	},
 	shifts_time: {
-		shift_1: { begin: "6:00", cease: "14:00" },
-		shift_2: { begin: "14:00", cease: "22:00" },
-		shift_3: { begin: "22:00", cease: "6:00" },
+		shift_1: { begin: "6:00", cease: "14:30" },
+		shift_2: { begin: "14:00", cease: "22:30" },
+		shift_3: { begin: "22:00", cease: "6:30" },
 	}
 }
 

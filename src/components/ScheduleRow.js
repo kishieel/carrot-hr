@@ -1,28 +1,11 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import ScheduleCellsGroup from './ScheduleCellsGroup.js'
-import { chunk, getDatesFromPeriod, calculateTimeBase, isTimeFormatValid } from '../helpers'
+import { chunk, workTimeSelector, getDatesFromPeriod, calculateTimeBase, isTimeFormatValid } from '../helpers'
 
 const moment = require('moment')
 
-const workTimeSelector = (schedules, employee_id) => {
-	let work_time = 0
-	Object.entries(schedules).filter((key, obj) => {
-		let e = parseInt( `${key}`.split(":")[0] )
-		return e === parseInt( employee_id );
-	}).map(([key, obj]) => {
-		if ( isTimeFormatValid( obj.begin ) === true && isTimeFormatValid( obj.cease ) === true ) {
-			let date = `${key}`.split(":")[1]
-			let beginDate = moment(`${date} ${obj.begin}`)
-			let ceaseDate = moment(`${date} ${obj.cease}`)
 
-			let diff = ceaseDate.diff( beginDate, 'hours', true )
-			if ( diff < 0 ) diff += 24
-			work_time += diff
-		}
-	})
-	return work_time;
-}
 
 const TimeLeft = (props) => {
 	const employee = useSelector( state => state.employees[ props.employee_id ])

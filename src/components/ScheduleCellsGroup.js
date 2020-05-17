@@ -2,19 +2,31 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import ScheduleCell from './ScheduleCell.js'
 import { isTimeFormatValid } from '../helpers'
+import { createSelector } from 'reselect'
 
 const moment = require('moment')
+const abc = createSelector( (schedules, employeeId, week) => {
+	let schedulesId = week.map( date => { return `${employeeId}:${date}` })
+	return Object.entries(schedules).filter( ([key, schedule]) => {
+		return schedulesId.includes(key)
+	})
+})
+// const abc = ( schedules, employeeId, week ) => {
+// 	return Object.entries(schedules).filter( ([key, schedule]) => { return true })
+// }
 
 const ScheduleCellsGroup = React.memo((props) => {
 	const { week, employee_id } = props
 	const { weekly_break } = useSelector ( state => state.settings )
 
 	const week_schedules = {}
-	week.map( date => {
-		const schedule_id = `${employee_id}:${date}`
-		const schedule = useSelector( state => state.schedules[ schedule_id ] ) || null
-		if ( schedule !== null ) week_schedules[ schedule_id ] = schedule
-	} )
+	week_schedules[ `${employee_id}:${week[0]}` ] = useSelector( state => state.schedules[ `${employee_id}:${week[0]}` ] ) || null
+	week_schedules[ `${employee_id}:${week[1]}` ] = useSelector( state => state.schedules[ `${employee_id}:${week[1]}` ] ) || null
+	week_schedules[ `${employee_id}:${week[2]}` ] = useSelector( state => state.schedules[ `${employee_id}:${week[2]}` ] ) || null
+	week_schedules[ `${employee_id}:${week[3]}` ] = useSelector( state => state.schedules[ `${employee_id}:${week[3]}` ] ) || null
+	week_schedules[ `${employee_id}:${week[4]}` ] = useSelector( state => state.schedules[ `${employee_id}:${week[4]}` ] ) || null
+	week_schedules[ `${employee_id}:${week[5]}` ] = useSelector( state => state.schedules[ `${employee_id}:${week[5]}` ] ) || null
+	week_schedules[ `${employee_id}:${week[6]}` ] = useSelector( state => state.schedules[ `${employee_id}:${week[6]}` ] ) || null
 
 	let preventSchedule = null
 	let currentSchedule = null
