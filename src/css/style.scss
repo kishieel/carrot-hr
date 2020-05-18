@@ -25,7 +25,7 @@
 }
 
 .carrotHR__input {
-	width: 60px;
+	width: 40px;
 	height: 1.5em;
 	padding: 0;
 	border: 0;
@@ -46,10 +46,10 @@
 	text-transform: uppercase;
 }
 
-.carrotHR__field--preference {
-	background: transparentize($purple, .5);
-	color: white !important;
-}
+// .carrotHR__field--preference {
+// 	background: transparentize($purple, .5);
+// 	color: white !important;
+// }
 
 .carrotHR__field--holiday {
 	background: transparentize($yellow, .3);
@@ -57,7 +57,7 @@
 }
 
 .carrotHR__field--free {
-	background: transparentize($green, .3);
+	background: transparentize($green, .6);
 	color: white !important;
 }
 

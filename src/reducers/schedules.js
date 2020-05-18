@@ -136,7 +136,7 @@ const schedulesReducer = (state = {  }, action) => {
 				} )
 
 				if ( schedulesShift1Managers === 0 && schedulesShift1.length < minCrewOfShift1 ) {
-					if ( Object.keys( availableEmployees ).length > 0 ) {
+					if ( Object.keys( availableManagers ).length > 0 ) {
 						let employee = getMostBored( availableManagers )
 						employees[ employee.id ].time_left -= 8.5
 
@@ -148,7 +148,7 @@ const schedulesReducer = (state = {  }, action) => {
 				}
 
 				if ( schedulesShift2Managers === 0 && schedulesShift2.length < minCrewOfShift2 ) {
-					if ( Object.keys( availableEmployees ).length > 0 ) {
+					if ( Object.keys( availableManagers ).length > 0 ) {
 						let employee = getMostBored( availableManagers )
 						employees[ employee.id ].time_left -= 8.5
 
@@ -160,7 +160,7 @@ const schedulesReducer = (state = {  }, action) => {
 				}
 
 				if ( schedulesShift3Managers === 0 && schedulesShift3.length < minCrewOfShift3 ) {
-					if ( Object.keys( availableEmployees ).length > 0 ) {
+					if ( Object.keys( availableManagers ).length > 0 ) {
 						let employee = getMostBored( availableManagers )
 						employees[ employee.id ].time_left -= 8.5
 

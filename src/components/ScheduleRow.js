@@ -13,40 +13,56 @@ const FreeDays = (props) => {
 	const freeDaysAmount = { }
 	Object.entries(free_days).forEach( ([key, freeDay]) => {
 		if ( freeDay !== null ) {
-			freeDaysAmount[ key ] = 0
+			freeDaysAmount[ key ] = { index: freeDay.index, left: 0 }
 		}
 	})
 
 	const dates = getDatesFromPeriod( billing_period, billing_period_type )
 	dates.map( date => {
 		let key = moment(date).format("ddd").toLowerCase()
-		if ( freeDaysAmount[ key ] !== null ) {
-			freeDaysAmount[ key ] += 1
+		if ( freeDaysAmount[ key ] !== undefined ) {
+			freeDaysAmount[ key ].left += 1
 		}
 	})
 
 	let schedulesAmount = 0
 	useSelector( state => Object.entries(state.schedules).filter( ([key, schedule]) => {
 		const [ empId, dateId ] = key.split(':')
-		return parseInt( empId ) === parseInt( empId )
+
+		return parseInt( employeeId ) === parseInt( empId )
 	}) ).map( ([key, schedule]) => {
-		schedulesAmount += 1
-		Object.entries( freeDaysAmount ).forEach( ([key, value]) => {
-			if ( schedule.begin === key ) freeDaysAmount[ key ] -= 1
+		const [ empId, dateId ] = key.split(':')
+
+		Object.entries( freeDaysAmount ).forEach( ([key, freeDay]) => {
+			if ( schedule.begin === freeDay.index ) {
+				freeDaysAmount[ key ].left -= 1
+			}
 		})
+
+		if ( schedule.begin !== "W" ) schedulesAmount += 1
 	})
 
-	let emptySchedules = dates.length - schedulesAmount
-	Object.entries( freeDaysAmount ).forEach( ([key, value]) => {
-		emptySchedules -= value
+	let emptySchedulesAmount = dates.length - schedulesAmount
+	Object.entries( freeDaysAmount ).forEach( ([key, freeDay]) => {
+		emptySchedulesAmount -= freeDay.left
 	})
+
 
 	let thClassName = "text-center"
 	let thContent = ""
-	if ( emptySchedules < 0 ) {
+	if ( emptySchedulesAmount < 0 ) {
 		thClassName += " carrotHR__field--warning"
 		thContent = "!"
+		console.log( `Pracownik o ID : ${employeeId} - brak miejsca na zwrócenie dni wolnych ( S, N )`)
 	}
+
+	Object.entries( freeDaysAmount ).forEach( ([key, freeDay]) => {
+		if ( freeDay.left !== 0 ) {
+			thClassName += " carrotHR__field--danger"
+			thContent = "?"
+			console.log( `Pracownik o ID : ${employeeId} - nie wydano dni wolnych ( ${freeDay.index} : ${freeDay.left} )`)
+		}
+	})
 
 	return (
 		<th className={ thClassName }>{ thContent }</th>
