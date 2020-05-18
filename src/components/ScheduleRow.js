@@ -5,7 +5,53 @@ import { chunk, workTimeSelector, getDatesFromPeriod, calculateTimeBase, isTimeF
 
 const moment = require('moment')
 
+const FreeDays = (props) => {
+	const { employeeId } = props
 
+	const { free_days, billing_period, billing_period_type } = useSelector( state => state.settings )
+
+	const freeDaysAmount = { }
+	Object.entries(free_days).forEach( ([key, freeDay]) => {
+		if ( freeDay !== null ) {
+			freeDaysAmount[ key ] = 0
+		}
+	})
+
+	const dates = getDatesFromPeriod( billing_period, billing_period_type )
+	dates.map( date => {
+		let key = moment(date).format("ddd").toLowerCase()
+		if ( freeDaysAmount[ key ] !== null ) {
+			freeDaysAmount[ key ] += 1
+		}
+	})
+
+	let schedulesAmount = 0
+	useSelector( state => Object.entries(state.schedules).filter( ([key, schedule]) => {
+		const [ empId, dateId ] = key.split(':')
+		return parseInt( empId ) === parseInt( empId )
+	}) ).map( ([key, schedule]) => {
+		schedulesAmount += 1
+		Object.entries( freeDaysAmount ).forEach( ([key, value]) => {
+			if ( schedule.begin === key ) freeDaysAmount[ key ] -= 1
+		})
+	})
+
+	let emptySchedules = dates.length - schedulesAmount
+	Object.entries( freeDaysAmount ).forEach( ([key, value]) => {
+		emptySchedules -= value
+	})
+
+	let thClassName = "text-center"
+	let thContent = ""
+	if ( emptySchedules < 0 ) {
+		thClassName += " carrotHR__field--warning"
+		thContent = "!"
+	}
+
+	return (
+		<th className={ thClassName }>{ thContent }</th>
+	)
+}
 
 const TimeLeft = (props) => {
 	const employee = useSelector( state => state.employees[ props.employee_id ])
@@ -28,16 +74,19 @@ const TimeLeft = (props) => {
 }
 
 const ScheduleRow = (props) => {
+	const { employeeId, onSignatureClick } = props
 	const { billing_period, billing_period_type } = useSelector( state => state.settings );
 	const weeks = chunk( getDatesFromPeriod( billing_period, billing_period_type ), 7 )
+	const employee = useSelector( state => state.employees[ employeeId ] ) || null
 
 	return (
 		<tr>
 			<th className="text-center">{ props.no }</th>
-			<th className="text-nowrap" onClick={ props.onSignatureClick }>{ props.employee.signature }</th>
-			<TimeLeft employee_id={ props.employee_id }/>
+			<th className="text-nowrap" onClick={ onSignatureClick }>{ employee.signature }</th>
+			<TimeLeft employee_id={ employeeId }/>
+			<FreeDays employeeId={ employeeId } />
 			{ weeks.map(week => { return (
-				<ScheduleCellsGroup key={ `schedule-group-[${week[0]}]-${props.employee_id}` } week={ week } employee_id={ props.employee_id } />
+				<ScheduleCellsGroup key={ `schedule-group-[${week[0]}]-${employeeId}` } week={ week } employee_id={ employeeId } />
 			)}) }
 		</tr>
 	)

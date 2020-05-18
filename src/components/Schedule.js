@@ -22,6 +22,7 @@ function Schedule() {
 					<th>#</th>
 					<th className="carrotHR__signature">Pracownik</th>
 					<th>Godz.</th>
+					<th className="px-3"></th>
 					{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
 						<th key={ `header-${date}`} className="text-nowrap text-center p-0">
 							<span className="px-3">{ moment(date).format('DD-MM') }</span><hr className="m-0"/>
@@ -31,14 +32,15 @@ function Schedule() {
 				</tr>
 			</thead>
 			<tbody>
-				{ Object.entries(employees).map(([employee_id, employee], i) => { return (
-					<ScheduleRow key={ `schedule-row-${employee_id}` } no={ i + 1 } employee={ employee } employee_id={ employee_id } onSignatureClick={ () => { setModalEmployeeID( employee_id ); setModalShow(true) } }/>
+				{ Object.keys(employees).map((key, i) => { return (
+					<ScheduleRow key={ `schedule-row-${key}` } no={ i + 1 } employeeId={ key } onSignatureClick={ () => { setModalEmployeeID( key ); setModalShow(true) } }/>
 				)})}
 				<tr>
 					<th className="text-center">#</th>
 					<th className="text-nowrap">
 						<Form.Control type="text" size="sm" placeholder="DODAJ PRACOWNIKA" onKeyDown={ (e) => { ( e.key === 'Enter' ) ? (() => { dispatch({ type: 'EMPLOYEE_CREATE', value: e.target.value }); e.target.value = ""; })() : (() => {})() } }/>
 					</th>
+					<th></th>
 					<th></th>
 					{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
 						<td key={ `footer-row-${date}` } className="text-center"> </td>
