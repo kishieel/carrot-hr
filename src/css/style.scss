@@ -2,7 +2,6 @@
 
 @import "~bootstrap/scss/bootstrap";
 
-
 * {
 	cursor: pointer;
 }
@@ -14,73 +13,41 @@
 	overflow: hidden;
 }
 
-.carrotHR__table {
-	flex: 1 1 auto;
-	display: block;
-	overflow: auto;
-}
+.schedules {
+	@at-root &__table {
+		flex: 1 1 auto;
+		display: flex;
+	   	flex-direction: column;
+	   	height: 0;
 
-.carrotHR__signature {
-	min-width: 12rem;
-}
+		tbody {
+			// flex: 1;
+			// display: flex;
+		   	// flex-direction: column;
+			overflow: auto;
+		}
 
-.carrotHR__input {
-	width: 60px;
-	height: 1.5em;
-	padding: 0;
-	border: 0;
-	color: inherit;
-	background: transparent;
-	box-sizing: border-box;
-	text-align: center;
-	display: inline;
-}
+		tbody th {
+			// flex: 0 0 auto;
+		}
 
-.carrotHR__input:disabled {
-	background: transparent;
-}
+		// tr {
+		// 	width: 100%;
+		// 	display: flex;
+		// }
 
-.carrotHR__input--shift {
-	text-align: center;
-	font-weight: bold;
-	text-transform: uppercase;
-}
+		// tr td,
+		// tr th {
+		// 	display: flex;
+		// 	flex: 1;
+		// 	align-items:center;
+		// 	justify-content:center;
+		// }
+	}
 
-.carrotHR__field--preference {
-	background: transparentize($purple, .6);
-	color: white !important;
-}
-
-.carrotHR__field--holiday {
-	background: transparentize($orange, .3);
-	color: white !important;
-}
-
-// .carrotHR__field--free {
-// 	background: transparentize($green, .6);
-// 	color: white !important;
-// }
-
-.carrotHR__field--sunday {
-	background: transparentize($cyan, .3);
-	color: white !important;
-}
-
-.carrotHR__field--danger {
-	background: transparentize($yellow, .3);
-	color: white !important;
-}
-
-.carrotHR__field--warning {
-	background: transparentize($red, .3) !important;
-	color: white !important;
-}
-
-.settings__input--crew {
-	display: inline;
-	width: 5rem;
-	border: none;
-	padding: 0 !important;
+	@at-root &__signature {
+		min-width: 12rem;
+	}
 }
 
 *::-webkit-scrollbar {

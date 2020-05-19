@@ -1,14 +1,12 @@
-import React, { Component } from 'react';
-import Navigation from './Navigation';
-import Schedule from './Schedule';
+import React from 'react'
+import Navigation from './navigation/Navigation'
+import Schedules from './schedules/Schedules'
 
-class App extends Component {
-	render() {
-		return ( <>
-			<Navigation />
-			<Schedule />
-		</> );
-	}
+const App = ( props ) => {
+	return (<>
+		<Navigation />
+		<Schedules />
+	</>)
 }
 
-export default App;
+export default App
