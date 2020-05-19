@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import ScheduleCell from './ScheduleCell.js'
 import { isTimeFormatValid } from '../helpers'
 import { createSelector } from 'reselect'
+import { OverlayTrigger, Button, Tooltip } from 'react-bootstrap'
 
 const moment = require('moment')
 const abc = createSelector( (schedules, employeeId, week) => {
@@ -13,6 +14,12 @@ const abc = createSelector( (schedules, employeeId, week) => {
 })
 // const abc = ( schedules, employeeId, week ) => {
 // 	return Object.entries(schedules).filter( ([key, schedule]) => { return true })
+// }
+
+// const renderTooltip = (props) => {
+// 	return (<>
+// 		<Tooltip {...props}>Złamano tydzień pracowniczy</Tooltip>
+// 	</>)
 // }
 
 const ScheduleCellsGroup = React.memo((props) => {
@@ -64,9 +71,18 @@ const ScheduleCellsGroup = React.memo((props) => {
 	}
 
 	return (<>
-		{ props.week.map(date => { return (
-			<ScheduleCell key={ `schedule-cell-${date}-${props.employee_id}` } date={ date } employee_id={ props.employee_id } isWeeklyBreakMet={ isWeeklyBreakMet } />
-		) } ) }
+		<OverlayTrigger
+	   placement="right"
+		   delay={{ show: 250, hide: 400 }}
+		   overlay={<Tooltip id={`hujemuje`}>
+			   Tooltip on <strong></strong>.
+		   </Tooltip>}>
+		   <span>
+		   <Button variant="success">Hover me to see</Button>
+		   <Button variant="success">Hover me to see</Button>
+		   </span>
+	   </OverlayTrigger>
+
 	</>)
 })
 

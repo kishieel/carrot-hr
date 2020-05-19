@@ -25,8 +25,8 @@ function Schedule() {
 					<th>Dw.</th>
 					{ getDatesFromPeriod( billing_period, billing_period_type ).map(date => { return (
 						<th key={ `header-${date}`} className="text-nowrap text-center p-0">
-							<span className="px-1">{ moment(date).format('DD-MM') }</span><hr className="m-0"/>
-							<span className="px-1">{ getDayShortName( moment(date).format('ddd').toLowerCase() ) }</span>
+							<span className="px-3">{ moment(date).format('DD-MM') }</span><hr className="m-0"/>
+							<span className="px-3">{ getDayShortName( moment(date).format('ddd').toLowerCase() ) }</span>
 						</th>
 					)}) }
 				</tr>

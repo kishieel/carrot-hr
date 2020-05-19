@@ -53,7 +53,7 @@ const ScheduleCell = React.memo((props) => {
 				}
 			}
 		} else if ( isShiftValid( schedule.begin, free_days ) === true ) {
-			tdClassName += " carrotHR__field--free"
+			if ( schedule.begin === "WS" ) tdClassName += " carrotHR__field--holiday"
 			ceaseClassName += " d-none"
 		} else {
 			tdClassName += " carrotHR__field--warning"
