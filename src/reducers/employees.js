@@ -1,6 +1,8 @@
 const initialState = {
 	employeeNextId: 1,
-	employeeList: {}
+	employeeList: {
+		"1": "Masło"
+	}
 }
 
 const employeesReducer = ( state = {}, action ) => {

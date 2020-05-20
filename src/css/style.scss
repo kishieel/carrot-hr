@@ -14,38 +14,13 @@
 }
 
 .schedules {
-	@at-root &__table {
+	@at-root #{&}__table {
 		flex: 1 1 auto;
-		display: flex;
-	   	flex-direction: column;
-	   	height: 0;
-
-		tbody {
-			// flex: 1;
-			// display: flex;
-		   	// flex-direction: column;
-			overflow: auto;
-		}
-
-		tbody th {
-			// flex: 0 0 auto;
-		}
-
-		// tr {
-		// 	width: 100%;
-		// 	display: flex;
-		// }
-
-		// tr td,
-		// tr th {
-		// 	display: flex;
-		// 	flex: 1;
-		// 	align-items:center;
-		// 	justify-content:center;
-		// }
+		display: block;
+		overflow: auto;
 	}
 
-	@at-root &__signature {
+	@at-root #{&}__signature {
 		min-width: 12rem;
 	}
 }
