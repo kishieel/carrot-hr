@@ -4,9 +4,11 @@ import schedulesReducer from '../reducers/schedules'
 import settingsReducer from '../reducers/settings'
 import employeesReducer from '../reducers/employees'
 
+// default: defaultReducer(state, action),
+
+
 const reducer = ( state = {}, action ) => {
 	return {
-		default: defaultReducer(state, action),
 		settings: settingsReducer(state.settings, action),
 		schedules: schedulesReducer(state.schedules, action),
 		employees: employeesReducer(state.employees, action),
