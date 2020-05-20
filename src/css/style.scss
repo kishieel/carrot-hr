@@ -23,6 +23,19 @@
 	@at-root #{&}__signature {
 		min-width: 12rem;
 	}
+
+	@at-root #{&}__input {
+		width: 60px;
+		height: 1.5em;
+		padding: 0;
+		border: 0;
+		color: inherit;
+		background: transparent;
+		box-sizing: border-box;
+		text-align: center;
+		display: inline;
+	}
+
 }
 
 *::-webkit-scrollbar {
