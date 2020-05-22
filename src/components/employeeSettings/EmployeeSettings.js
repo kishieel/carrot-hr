@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
-import { Modal, Container, Button, Form } from 'react-bootstrap';
+import React from 'react'
+import { Modal, Container, Button } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import { showEmployeeSettings } from '../../actions/temporary'
-import { updateEmployee } from '../../actions/employees'
 import Signature from './Signature'
 import TimeContract from './TimeContract'
 import Role from './Role'

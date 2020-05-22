@@ -2,7 +2,7 @@ import React from 'react'
 import { Form } from 'react-bootstrap'
 
 const ScheduleCell = React.memo( (props) => {
-	const { date, employeeId } = props
+	// const { date, employeeId } = props
 
 	let tdClassName = "text-center align-middle p-0"
 	let beginClassName = "schedules__input"

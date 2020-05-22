@@ -9,7 +9,7 @@ import { showEmployeeSettings } from '../../actions/temporary'
 
 const ScheduleRow = React.memo( ( props ) => {
 	const dispatch = useDispatch()
-	const { rowNo, employeeId, onSignatureClick } = props
+	const { rowNo, employeeId } = props
 	const employee = useSelector( state => state.employees.employeeList[ employeeId ] )
 	const dates = useSelector( selectDatesFromPeriod )
 

@@ -1,5 +1,3 @@
-const moment = require("moment")
-
 const initialState = {
 	employeeSettings: {
 		show: false,
