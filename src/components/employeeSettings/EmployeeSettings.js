@@ -2,6 +2,7 @@ import React from 'react'
 import { Modal, Container, Button } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import { showEmployeeSettings } from '../../actions/temporary'
+import { removeEmployee } from '../../actions/employees'
 import Signature from './Signature'
 import TimeContract from './TimeContract'
 import Role from './Role'
@@ -25,7 +26,7 @@ const EmployeeSettings = (props) => {
 				</Container>
 			</Modal.Body>
 			<Modal.Footer>
-				<Button variant="danger" onClick={ () => {} }> Usuń </Button>
+				<Button variant="danger" onClick={ () => { dispatch( showEmployeeSettings( false, 0 ) ); dispatch( removeEmployee( employeeId ) ) } }> Usuń </Button>
 				<Button onClick={ () => dispatch( showEmployeeSettings( false, 0 ) ) }> Zamknij </Button>
 			</Modal.Footer>
 		</Modal>

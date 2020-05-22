@@ -1,3 +1,5 @@
+import { UPDATE_BILLING_TYPE, UPDATE_BILLING_PERIOD } from '../actions/settings'
+
 const moment = require("moment")
 
 const initialState = {
@@ -28,6 +30,21 @@ const initialState = {
 
 const settingsReducer = ( state = initialState, action ) => {
 	switch ( action.type ) {
+		case UPDATE_BILLING_PERIOD: {
+			return {
+				...state,
+				billingPeriod: action.billingPeriod
+			}
+		}
+	 	case UPDATE_BILLING_TYPE: {
+			let billingPeriod = moment( moment( state.billingPeriod ).format("YYYY-01 Q"), "YYYY-01 Q" ).format("YYYY-MM")
+
+			return {
+				...state,
+				billingType: action.billingType,
+				billingPeriod
+			}
+	 	}
 		default:
 			return state
 	}

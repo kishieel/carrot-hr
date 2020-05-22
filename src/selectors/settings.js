@@ -3,8 +3,8 @@ import { createSelector } from 'reselect'
 const moment = require('moment')
 
 export const selectDatesFromPeriod = createSelector(
-  state => state.settings,
-  ({ billingType, billingPeriod }) => {
+	state => state.settings,
+	({ billingType, billingPeriod }) => {
 	  	const dates = []
 
 		if ( billingType === "QUARTER" ) {
@@ -18,5 +18,15 @@ export const selectDatesFromPeriod = createSelector(
 		}
 
 		return dates
-  }
+	}
 )
+
+export const selectBillingPeriodName = ( billingType, billingPeriod ) => {
+
+	if ( billingType === "QUARTER" ) {
+		return moment( billingPeriod ).format("Q [kwartał] YYYY")
+	}
+
+	let billingPeriodName = moment( billingPeriod ).format("MMMM YYYY")
+	return billingPeriodName.charAt(0).toUpperCase() + billingPeriodName.slice(1)
+}

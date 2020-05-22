@@ -1,13 +1,10 @@
 import React from 'react'
 import ScheduleCell from './ScheduleCell'
 import { useSelector, useDispatch } from 'react-redux'
-import { selectDatesFromPeriod } from '../../selectors'
+import { selectDatesFromPeriod } from '../../selectors/settings'
 import { showEmployeeSettings } from '../../actions/temporary'
 
-
-// const moment = require('moment')
-
-const ScheduleRow = React.memo( ( props ) => {
+const ScheduleRow = ( props ) => {
 	const dispatch = useDispatch()
 	const { rowNo, employeeId } = props
 	const employee = useSelector( state => state.employees.employeeList[ employeeId ] )
@@ -24,6 +21,6 @@ const ScheduleRow = React.memo( ( props ) => {
 			})}
 		</tr>
 	</>)
-})
+}
 
 export default ScheduleRow

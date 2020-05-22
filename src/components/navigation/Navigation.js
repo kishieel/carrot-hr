@@ -2,6 +2,7 @@ import React from 'react'
 import { Navbar, Button } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
 import { saveSchedules, loadSchedules } from '../../actions/default'
+import ScheduleSettings from './ScheduleSettings'
 
 const Navigation = ( props ) => {
 	const dispatch = useDispatch()
@@ -23,7 +24,7 @@ const Navigation = ( props ) => {
 		<Navbar collapseOnSelect expand="lg" bg="light" variant="light">
 			<Navbar.Toggle aria-controls="responsive-navbar-nav" />
 			<Navbar.Collapse id="responsive-navbar-nav">
-				<Button className="mr-2 mr-lg-4 mt-2 mt-lg-0" variant="outline-warning" onClick={ () => { } } ><b> Ustawienia </b></Button>
+				<ScheduleSettings />
 				<Button className="mr-2 mt-2 mt-lg-0" variant="outline-dark" onClick={ () => dispatch( saveSchedules() ) }><b> Zapisz </b></Button>
 				<Button className="mr-2 mr-lg-4 mt-2 mt-lg-0" variant="outline-dark" type="input" onClick={ () => { fileUploader.click() } }><b> Wczytaj </b></Button>
 				<Button className="mr-2 mt-2 mt-lg-0" variant="outline-success" onClick={ () => { } }><b> Generuj </b></Button>

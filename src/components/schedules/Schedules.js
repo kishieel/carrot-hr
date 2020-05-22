@@ -3,13 +3,11 @@ import ScheduleRow from './ScheduleRow'
 import { Table, Form } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux';
 import { createEmployee } from '../../actions/employees'
-import { selectDatesFromPeriod } from '../../selectors'
+import { selectDatesFromPeriod } from '../../selectors/settings'
 
 const moment = require('moment')
-require('moment/locale/pl')
 
-
-const Schedules = React.memo( ( props ) => {
+const Schedules = ( props ) => {
 	const dispatch = useDispatch()
 	const employees = useSelector( state => state.employees.employeeList )
 	const dates = useSelector( selectDatesFromPeriod )
@@ -59,6 +57,6 @@ const Schedules = React.memo( ( props ) => {
 			</tbody>
 		</Table>
 	</>)
-})
+}
 
 export default Schedules

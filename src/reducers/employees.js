@@ -1,4 +1,4 @@
-import { CREATE_EMPLOYEE, UPDATE_EMPLOYEE } from '../actions/employees'
+import { CREATE_EMPLOYEE, UPDATE_EMPLOYEE, REMOVE_EMPLOYEE } from '../actions/employees'
 
 const initialState = {
 	employeeNextId: 1,
@@ -31,6 +31,14 @@ const employeesReducer = ( state = initialState, action ) => {
 						[ action.field ]: action.value
 					}
 				}
+			}
+		}
+		case REMOVE_EMPLOYEE: {
+			const { [action.employeeId]: _, ...employeeList } = state.employeeList
+
+			return {
+				...state,
+				employeeList
 			}
 		}
 		default:
