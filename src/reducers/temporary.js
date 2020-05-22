@@ -10,7 +10,6 @@ const initialState = {
 const temporaryReducer = ( state = initialState, action ) => {
 	switch ( action.type ) {
 		case 'EMPLOYEE_SETTINGS': {
-			console.log(action,state)
 			return {
 				...state,
 				employeeSettings: {
