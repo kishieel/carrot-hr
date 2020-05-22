@@ -3,7 +3,7 @@ import Navigation from './navigation/Navigation'
 import Schedules from './schedules/Schedules'
 import EmployeeSettings from './employeeSettings/EmployeeSettings'
 
-require('moment/locale/pl')
+// require('moment/locale/pl')
 
 const App = ( props ) => {
 	return (<>

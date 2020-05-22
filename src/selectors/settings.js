@@ -30,3 +30,46 @@ export const selectBillingPeriodName = ( billingType, billingPeriod ) => {
 	let billingPeriodName = moment( billingPeriod ).format("MMMM YYYY")
 	return billingPeriodName.charAt(0).toUpperCase() + billingPeriodName.slice(1)
 }
+
+export const selectWorkHours = createSelector(
+	state => state.settings,
+	state => state.temporary,
+	(_, dates) => dates,
+	({ freeDays, billingType, billingPeriod }, { holidayDates }, dates) => {
+		let time = 0
+
+		for ( const date of dates ) {
+			let dayName = moment(date).format("ddd").toLowerCase()
+			let freeDay = freeDays[ dayName ] || null
+
+			if ( freeDay === null ) {
+				time += 8
+			}
+
+			if ( dayName !== "sun" && holidayDates.includes(date) ) {
+				time -= 8
+			}
+		}
+
+		return time
+	}
+)
+
+export const selectFreeDays = createSelector(
+	state => state.settings,
+	(_, dates) => dates,
+	({ freeDays }, dates) => {
+		let freeDaysAmount = { }
+		for ( const date of dates ) {
+			let dayName = moment(date).format("ddd").toLowerCase()
+			let freeDay = freeDays[ dayName ] || null
+			if ( freeDay !== null ) {
+				if ( freeDaysAmount[ dayName ] === undefined ) {
+					freeDaysAmount[ dayName ] = { index: freeDays[ dayName ].index, left: 0 }
+				}
+				freeDaysAmount[ dayName ].left += 1
+			}
+		}
+		return freeDaysAmount
+	}
+)

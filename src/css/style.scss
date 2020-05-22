@@ -36,6 +36,14 @@
 		display: inline;
 	}
 
+	@at-root #{&}__field {
+
+		@at-root #{&}--warning {
+			background: transparentize($red, .3);
+			color: white;
+		}
+	}
+
 }
 
 *::-webkit-scrollbar {

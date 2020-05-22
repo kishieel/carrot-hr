@@ -19,6 +19,9 @@ const Schedules = ( props ) => {
 		}
 	}
 
+ 	moment().locale("pl")
+	console.log(moment().locale())
+
 	return (<>
 		<Table className="schedules__table mb-0" striped bordered>
 			<thead>
@@ -31,7 +34,7 @@ const Schedules = ( props ) => {
 						let m = moment(date)
 						return (<th key={ m.format('DD-MM') } className="text-nowrap text-center p-0">
 							<span className="px-3">{ m.format('DD-MM') }</span><hr className="m-0"/>
-							<span className="px-3">{ m.format('dd').toUpperCase() }</span>
+							<span className="px-3">{ m.format('ddd').toUpperCase() }</span>
 						</th>)
 					})}
 				</tr>
