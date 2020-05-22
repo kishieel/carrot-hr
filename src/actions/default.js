@@ -1,5 +1,5 @@
-const SAVE = "SAVE"
-const LOAD = "LOAD"
+export const SAVE = "SAVE"
+export const LOAD = "LOAD"
 
 export function saveSchedules() {
 	return { type: SAVE }
