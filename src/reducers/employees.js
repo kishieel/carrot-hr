@@ -1,49 +1,49 @@
-// const initialState = {
-// 	1: { signature: "Ada", time_contract: 1, role: "" },
-// 	2: { signature: "Romek", time_contract: 1, role: "" },
-// 	3: { signature: "Capek", time_contract: 1, role: "" },
-// 	4: { signature: "Sebek", time_contract: 1, role: "" },
-// 	5: { signature: "Kikek", time_contract: 1, role: "" },
-// 	6: { signature: "Rike", time_contract: .75, role: "" },
-// 	7: { signature: "Pike", time_contract: 1, role: "" },
-// 	8: { signature: "Mike", time_contract: 1, role: "" },
-// 	9: { signature: "Katarz", time_contract: 1, role: "" },
-// 	10: { signature: "Saba", time_contract: 1, role: "" },
-// 	11: { signature: "Zomas", time_contract: 1, role: "" },
-// 	12: { signature: "Komas", time_contract: 1, role: "" },
-// 	13: { signature: "Bilias", time_contract: 1, role: "" },
-// }
-const initialState = { }
-let next_employee_id = 1;
+import { CREATE_EMPLOYEE, UPDATE_EMPLOYEE, REMOVE_EMPLOYEE } from '../actions/employees'
 
-const employeesReducer = (state = initialState, action) => {
-	switch (action.type) {
-		case 'EMPLOYEE_CREATE': {
+const initialState = {
+	employeeNextId: 1,
+	employeeList: { }
+}
+
+const employeesReducer = ( state = initialState, action ) => {
+	switch ( action.type ) {
+		case CREATE_EMPLOYEE: {
 			return {
 				...state,
-				[ next_employee_id++ ]: {
-					signature: action.value,
-					time_contract: 1,
-					role: 'PRACOWNIK'
+				employeeList: {
+					...state.employeeList,
+					[ state.employeeNextId ]: {
+						signature: action.signature,
+						timeContract: 1,
+						role: "PRACOWNIK"
+					}
+				},
+				employeeNextId: state.employeeNextId + 1
+			}
+		}
+		case UPDATE_EMPLOYEE: {
+			return {
+				...state,
+				employeeList: {
+					...state.employeeList,
+					[ action.employeeId ]: {
+						...state.employeeList[ action.employeeId ],
+						[ action.field ]: action.value
+					}
 				}
 			}
 		}
-		case 'EMPLOYEE_UPDATE': {
-			let employee = state[ action.id ];
-			employee[ action.field ] = action.value;
+		case REMOVE_EMPLOYEE: {
+			const { [action.employeeId]: _, ...employeeList } = state.employeeList
 
 			return {
 				...state,
-				[ action.id ]: employee
+				employeeList
 			}
 		}
-		case 'EMPLOYEE_REMOVE': {
-			let { [ action.employee_id ]: remove, ...res } = state;
-			return { ...res };
-		}
 		default:
-			return state;
+			return state
 	}
-};
+}
 
-export default employeesReducer;
+export default employeesReducer
