@@ -9,7 +9,7 @@ import Role from './Role'
 
 const EmployeeSettings = (props) => {
 	const dispatch = useDispatch()
-	const { show, employeeId  } = useSelector( state => state.temporary.employeeSettings)
+	const { show, employeeId  } = useSelector( state => state.temporary.employeeSettings )
 
 	return (
 		<Modal show={ show } onHide={ () => dispatch( showEmployeeSettings( false, 0 ) ) } size="lg">
