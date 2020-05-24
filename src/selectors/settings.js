@@ -27,7 +27,7 @@ export const selectBillingPeriodName = ( billingType, billingPeriod ) => {
 		return moment( billingPeriod ).format("Q [kwartał] YYYY")
 	}
 
-	let billingPeriodName = moment( billingPeriod ).format("MMMM YYYY")
+	let billingPeriodName = moment( billingPeriod ).locale('pl').format("MMMM YYYY")
 	return billingPeriodName.charAt(0).toUpperCase() + billingPeriodName.slice(1)
 }
 
