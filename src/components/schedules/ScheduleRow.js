@@ -3,12 +3,16 @@ import ScheduleCell from './ScheduleCell'
 import { useSelector, useDispatch } from 'react-redux'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { selectDatesFromPeriod, selectWorkHours, selectFreeDays } from '../../selectors/settings'
+import { selectWorkTimeDone } from '../../selectors/schedules'
 import { showEmployeeSettings } from '../../actions/temporary'
 
-const WorkHoursCell = ( props ) => {
+const WorkTimeCell = ( props ) => {
 	const { employeeId, dates } = props
 	const timeContract = useSelector( state => state.employees.employeeList[ employeeId ].timeContract )
 	const workHours = useSelector( state => selectWorkHours( state, dates ) )
+	const workTimeDone = useSelector( selectWorkTimeDone( employeeId ) )
+
+	console.log( workTimeDone )
 
 	let time = ( workHours * timeContract ) - 0
 
@@ -33,7 +37,7 @@ const WorkHoursCell = ( props ) => {
 	}
 
 	return (<>
-		<th className="text-center align-middle">{ time }</th>
+		<th className="text-center align-middle">{ 0 }</th>
 	</>)
 }
 
@@ -68,7 +72,7 @@ const FreeDaysCell = ( props ) => {
 	</>)
 }
 
-const ScheduleRow = ( props ) => {
+const ScheduleRow = React.memo( ( props ) => {
 	const dispatch = useDispatch()
 	const { rowNo, employeeId } = props
 	const employee = useSelector( state => state.employees.employeeList[ employeeId ] )
@@ -78,13 +82,13 @@ const ScheduleRow = ( props ) => {
 		<tr>
 			<th className="text-center align-middle">{ rowNo }</th>
 			<th className="text-nowrap align-middle schedules__signature" onClick={ () => dispatch( showEmployeeSettings( true, employeeId )) }>{ employee?.signature }</th>
-			<WorkHoursCell employeeId={ employeeId } dates={ dates } />
+			<WorkTimeCell employeeId={ employeeId } dates={ dates } />
 			<FreeDaysCell employeeId={ employeeId } dates={ dates } />
 			{ dates.map( (date) => {
 				return <ScheduleCell key={ `date-${date}` } date={date} employeeId={employeeId} />
 			})}
 		</tr>
 	</>)
-}
+})
 
 export default ScheduleRow

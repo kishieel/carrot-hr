@@ -6,7 +6,8 @@ import { updateSchedule } from '../../actions/schedules'
 const ScheduleCell = React.memo( (props) => {
 	const dispatch = useDispatch()
 	const { date, employeeId } = props
-	const schedule = useSelector( state => state.schedules[ employeeId ]?.[ date ] ) || null
+	// const schedule = useSelector( state => state.schedules[ employeeId ]?.[ date ] ) || null
+	const schedule = null
 
 	let tdClassName = "text-center align-middle p-0"
 	let beginClassName = "schedules__input"
