@@ -9,6 +9,8 @@ const ScheduleCell = React.memo( (props) => {
 	const { date, employeeId } = props
 	const schedule = useSelector( state => state.schedules[ employeeId ]?.[ date ] ) || null
 	const parsedSchedule = useSelector( selectParsedSchedule( employeeId, date ) )
+	const { timeLayer, absenceLayer } = useSelector( state => state.temporary )
+
 
 	let tdClassName = "text-center align-middle p-0"
 	let beginClassName = "schedules__input"
@@ -17,7 +19,16 @@ const ScheduleCell = React.memo( (props) => {
 	let isOverlayed = false
 	let tooltipMessage = ""
 
+	let view = (<>
+		<Form.Control className={ beginClassName } type="text" size="sm" value={ schedule?.begin } onChange={ (e) => dispatch( updateSchedule( employeeId, date, "begin", e.target.value.toUpperCase() ) ) }/>
+		<Form.Control className={ ceaseClassName } type="text" size="sm" value={ schedule?.cease } onChange={ (e) => dispatch( updateSchedule( employeeId, date, "cease", e.target.value.toUpperCase() ) ) }/>
+	</>)
+
 	if ( parsedSchedule.format === TIME_FORMAT ) {
+		if ( timeLayer === true ) {
+			view = parsedSchedule.workTime
+		}
+
 		if ( parsedSchedule.isMaxWorkTimeValid === false ) {
 			tdClassName += " schedules__field--danger"
 
@@ -41,8 +52,7 @@ const ScheduleCell = React.memo( (props) => {
 	return (<>
 		<OverlayTrigger overlay={ <Tooltip className={ ( isOverlayed === true ) ? "" : "d-none" }> { tooltipMessage } </Tooltip> }>
 			<td className={ tdClassName }>
-				<Form.Control className={ beginClassName } type="text" size="sm" value={ schedule?.begin } onChange={ (e) => dispatch( updateSchedule( employeeId, date, "begin", e.target.value.toUpperCase() ) ) }/>
-				<Form.Control className={ ceaseClassName } type="text" size="sm" value={ schedule?.cease } onChange={ (e) => dispatch( updateSchedule( employeeId, date, "cease", e.target.value.toUpperCase() ) ) }/>
+				{ view }
 			</td>
 		</OverlayTrigger>
 	</>)

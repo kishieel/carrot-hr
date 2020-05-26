@@ -13,6 +13,7 @@ const WorkTimeCell = ( props ) => {
 	const workTimeDone = useSelector( selectWorkTimeDone( employeeId ) )
 
 	let time = ( workHours * timeContract ) - workTimeDone
+	time = Math.floor( time * 100 ) / 100
 
 	let validation = { valid: true, message: "" }
 	if ( time < 0 ) {

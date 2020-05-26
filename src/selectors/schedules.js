@@ -48,6 +48,7 @@ export const selectParsedSchedule = ( employeeId, date ) => {
 				let workTime = ceaseDate.diff( beginDate, 'hours', true )
 				if ( workTime <= 0 ) workTime += 24;
 
+				parsedSchedule.workTime = moment( moment.duration( workTime, 'hours' ).asMilliseconds()).format("HH:mm")
 				if ( workTime > moment.duration( maxWorkTime ).asHours() ) {
 					parsedSchedule.isMaxWorkTimeValid = false
 				}

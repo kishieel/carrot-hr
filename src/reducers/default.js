@@ -19,6 +19,8 @@ const defaultReducer = ( state = {}, action ) => {
 		case LOAD: {
 			const { employees, settings, schedules } = action.payload
 			state.employees = employees
+			state.settings = settings
+			state.schedules = schedules
 			return { ...state }
 		}
 		default:

@@ -9,6 +9,7 @@ const ShiftTimesControl = ( ) => {
 	const shiftsCount = useSelector( state => state.settings.shiftsCount )
 	const shiftTimes = useSelector( selectShiftTimes )
 
+
 	return (<>
 		<Row className="show-grid align-items-center mb-2">
 			<Col sm={7} lg={8}>
@@ -30,18 +31,42 @@ const ShiftTimesControl = ( ) => {
 							<th>Zmiana:</th>
 							<th className="text-center text-truncate w-15">Rozpoczęcie</th>
 							<th className="text-center text-truncate w-15">Zakończenie</th>
+							<th className="text-center text-truncate w-15">Kierownik</th>
 						</tr>
 					</thead>
 					<tbody>
 						{ Object.entries( shiftTimes ).map( ([ shiftNumber, shiftTime ]) => {
+							console.log( shiftTime)
+
 							return (
 								<tr key={ `shift-time-${ shiftNumber }` } >
 									<td>Zmiana { "I".repeat( parseInt( shiftNumber ) ) }</td>
 									<td className="text-center w-10">
-										<Form.Control className="text-center" type="text" size="sm" value={ shiftTime.begin } onChange={ (e) => dispatch( updateShiftTimes( shiftNumber, "begin", e.target.value ) )} />
+										<Form.Control
+											className="text-center"
+											type="text"
+											size="sm"
+											value={ shiftTime.begin }
+											onChange={ (e) => dispatch( updateShiftTimes( shiftNumber, "begin", e.target.value ) )} />
 									</td>
 									<td className="text-center w-10">
-										<Form.Control className="text-center" type="text" size="sm" value={ shiftTime.cease } onChange={ (e) => dispatch( updateShiftTimes( shiftNumber, "cease", e.target.value ) )} />
+										<Form.Control
+											className="text-center"
+											type="text"
+											size="sm"
+											value={ shiftTime.cease }
+											onChange={ (e) => dispatch( updateShiftTimes( shiftNumber, "cease", e.target.value ) )} />
+									</td>
+									<td className="text-center w-10">
+										<Form.Check
+											className="text-center"
+											type="checkbox"
+											id={ `require-manager-${ shiftNumber }` }
+											label="Wymagany"
+											size="sm"
+											checked={ shiftTime.requireManager }
+											onChange={ (e) => dispatch( updateShiftTimes( shiftNumber, "requireManager", e.target.checked ) )}
+											custom/>
 									</td>
 								</tr>
 							)

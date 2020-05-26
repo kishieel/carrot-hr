@@ -35,10 +35,10 @@ const initialState = {
 		sun: { "1": 0, "2": 0, "3": 0 },
 	},
 	shiftTimes: {
-		"1": { begin: "6:00", cease: "14:30" },
-		"2": { begin: "14:00", cease: "22:30" },
-		"3": { begin: "22:00", cease: "6:30" },
-	}
+		"1": { begin: "6:00", cease: "14:30", requireManager: true },
+		"2": { begin: "14:00", cease: "22:30", requireManager: true },
+		"3": { begin: "22:00", cease: "6:30", requireManager: true },
+	},
 }
 
 const settingsReducer = ( state = initialState, action ) => {
