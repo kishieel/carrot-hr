@@ -12,9 +12,7 @@ const WorkTimeCell = ( props ) => {
 	const workHours = useSelector( state => selectWorkHours( state, dates ) )
 	const workTimeDone = useSelector( selectWorkTimeDone( employeeId ) )
 
-	console.log( workTimeDone )
-
-	let time = ( workHours * timeContract ) - 0
+	let time = ( workHours * timeContract ) - workTimeDone
 
 	let validation = { valid: true, message: "" }
 	if ( time < 0 ) {

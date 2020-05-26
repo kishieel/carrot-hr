@@ -1,4 +1,11 @@
-import { UPDATE_BILLING_TYPE, UPDATE_BILLING_PERIOD } from '../actions/settings'
+import {
+	UPDATE_SETTINGS,
+	UPDATE_BILLING_TYPE,
+	SET_FREE_DAYS,
+	UPDATE_FREE_DAYS,
+	UPDATE_SHIFT_TIMES,
+	UPDATE_SHIFT_CREW
+} from '../actions/settings'
 
 const moment = require("moment")
 
@@ -8,7 +15,13 @@ const initialState = {
 	maxWorkTime: "13:00",
 	minDailyBreak: "11:00",
 	minWeeklyBreak: "35:00",
+	shiftsCount: 2,
 	freeDays: {
+		mon: null,
+		tue: null,
+		wed: null,
+		thu: null,
+		fri: null,
 		sat: { index: "SB", permanent: false },
 		sun: { index: "ND", permanent: true }
 	},
@@ -30,10 +43,10 @@ const initialState = {
 
 const settingsReducer = ( state = initialState, action ) => {
 	switch ( action.type ) {
-		case UPDATE_BILLING_PERIOD: {
+		case UPDATE_SETTINGS: {
 			return {
 				...state,
-				billingPeriod: action.billingPeriod
+				[ action.field ]: action.value
 			}
 		}
 	 	case UPDATE_BILLING_TYPE: {
@@ -45,6 +58,64 @@ const settingsReducer = ( state = initialState, action ) => {
 				billingPeriod
 			}
 	 	}
+		case SET_FREE_DAYS: {
+			if ( action.checked === false ) {
+				return {
+					...state,
+					freeDays: {
+						...state.freeDays,
+						[ action.day ] : null
+					}
+				}
+			}
+
+			return {
+				...state,
+				freeDays: {
+					...state.freeDays,
+					[ action.day ] : {
+						index: moment().day( action.day ).locale('pl').format('dd').toUpperCase(),
+						permanent: true
+					}
+				}
+			}
+		}
+		case UPDATE_FREE_DAYS: {
+			return {
+				...state,
+				freeDays: {
+					...state.freeDays,
+					[ action.day ]: {
+						...state.freeDays[ action.day ],
+						[ action.field ]: action.value
+					}
+				}
+			}
+		}
+		case UPDATE_SHIFT_TIMES: {
+			return {
+				...state,
+				shiftTimes: {
+					...state.shiftTimes,
+					[ action.shiftNumber ]: {
+						...state.shiftTimes[ action.shiftNumber ],
+						[ action.field ]: action.value
+					}
+				}
+			}
+		}
+		case UPDATE_SHIFT_CREW: {
+			return {
+				...state,
+				shiftCrew: {
+					...state.shiftCrew,
+					[ action.day ]: {
+						...state.shiftCrew[ action.day ],
+						[ action.field ]: action.value
+					}
+				}
+			}
+		}
 		default:
 			return state
 	}

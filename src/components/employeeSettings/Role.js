@@ -12,7 +12,10 @@ const Role = ( props ) => {
 		<Row className="show-grid align-items-center mb-2">
 			<Col sm={6} lg={8}> Stanowisko: </Col>
 			<Col sm={6} lg={4}>
-				<Form.Control type="text" value={ role } onChange={ (e) => dispatch( updateEmployee( employeeId, "role", e.target.value ) ) }/>
+				<Form.Control as="select" value={ role } onChange={ (e) => dispatch( updateEmployee( employeeId, "role", e.target.value ) ) } custom>
+					<option value={ "PRACOWNIK" }> PRACOWNIK </option>
+					<option value={ "KIEROWNIK" }> KIEROWNIK </option>
+				</Form.Control>
 			</Col>
 		</Row>
 	</>)

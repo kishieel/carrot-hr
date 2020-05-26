@@ -2,6 +2,21 @@ import { createSelector } from 'reselect'
 
 const moment = require('moment')
 
+export const selectShiftTimes = createSelector(
+	state => state.settings,
+	( { shiftTimes, shiftsCount } ) => {
+		let selectedShiftTimes = {}
+
+		Object.entries( shiftTimes ).map( ([ shiftNumber, shiftTime ]) => {
+			if ( parseInt( shiftNumber ) <= shiftsCount ) {
+				selectedShiftTimes[ shiftNumber ] = shiftTime
+			}
+		})
+
+		return selectedShiftTimes
+	}
+)
+
 export const selectDatesFromPeriod = createSelector(
 	state => state.settings,
 	({ billingType, billingPeriod }) => {
@@ -56,7 +71,7 @@ export const selectWorkHours = createSelector(
 )
 
 export const selectFreeDays = createSelector(
-	state => state.settings,
+	state =>﻿ state.settings,
 	(_, dates) => dates,
 	({ freeDays }, dates) => {
 		let freeDaysAmount = { }
