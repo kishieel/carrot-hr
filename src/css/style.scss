@@ -38,6 +38,11 @@
 
 	@at-root #{&}__field {
 
+		@at-root #{&}--sunday {
+			background: transparentize($cyan, .3);
+			color: white;
+		}
+
 		@at-root #{&}--danger {
 			background: transparentize($yellow, .3);
 			color: white;

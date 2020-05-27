@@ -3,7 +3,9 @@ import {
 	UPDATE_BILLING_TYPE,
 	SET_FREE_DAYS,
 	UPDATE_FREE_DAYS,
-	UPDATE_SHIFT_TIMES,
+	CREATE_SHIFT,
+	UPDATE_SHIFT,
+	REMOVE_SHIFT,
 	UPDATE_SHIFT_CREW
 } from '../actions/settings'
 
@@ -15,7 +17,6 @@ const initialState = {
 	maxWorkTime: "13:00",
 	minDailyBreak: "11:00",
 	minWeeklyBreak: "35:00",
-	shiftsCount: 2,
 	freeDays: {
 		mon: null,
 		tue: null,
@@ -25,20 +26,41 @@ const initialState = {
 		sat: { index: "SB", permanent: false },
 		sun: { index: "ND", permanent: true }
 	},
-	shiftCrew: {
-		mon: { "1": 5, "2": 5, "3": 0 },
-		tue: { "1": 4, "2": 4, "3": 0 },
-		wed: { "1": 5, "2": 5, "3": 0 },
-		thu: { "1": 4, "2": 4, "3": 0 },
-		fri: { "1": 4, "2": 5, "3": 0 },
-		sat: { "1": 5, "2": 5, "3": 0 },
-		sun: { "1": 0, "2": 0, "3": 0 },
+	shiftList: {
+		[ 1 ]: {
+			name: "Zmiana 1",
+			index: "Z1",
+			begin: "6:00",
+			cease: "14:30",
+			requireManager: true,
+			crew: {
+				mon: 5,
+				tue: 4,
+				wed: 5,
+				thu: 4,
+				fri: 4,
+				sat: 5,
+				sun: 0,
+			}
+		},
+		[ 2 ]: {
+			name: "Zmiana 2",
+			index: "Z2",
+			begin: "14:00",
+			cease: "22:30",
+			requireManager: true,
+			crew: {
+				mon: 5,
+				tue: 4,
+				wed: 5,
+				thu: 4,
+				fri: 5,
+				sat: 5,
+				sun: 0,
+			}
+		}
 	},
-	shiftTimes: {
-		"1": { begin: "6:00", cease: "14:30", requireManager: true },
-		"2": { begin: "14:00", cease: "22:30", requireManager: true },
-		"3": { begin: "22:00", cease: "6:30", requireManager: true },
-	},
+	shiftNextId: 3
 }
 
 const settingsReducer = ( state = initialState, action ) => {
@@ -92,26 +114,62 @@ const settingsReducer = ( state = initialState, action ) => {
 				}
 			}
 		}
-		case UPDATE_SHIFT_TIMES: {
+		case CREATE_SHIFT: {
 			return {
 				...state,
-				shiftTimes: {
-					...state.shiftTimes,
-					[ action.shiftNumber ]: {
-						...state.shiftTimes[ action.shiftNumber ],
+				shiftList: {
+					...state.shiftList,
+					[ state.shiftNextId ]: {
+						name: action.name,
+						index: "Z" + state.shiftNextId,
+						begin: "0:00",
+						cease: "0:00",
+						isManagerRequire: false,
+						crew: {
+							mon: 0,
+							tue: 0,
+							wed: 0,
+							thu: 0,
+							fri: 0,
+							sat: 0,
+							sun: 0,
+						}
+					}
+				},
+				shiftNextId: state.shiftNextId + 1
+			}
+		}
+		case UPDATE_SHIFT: {
+			return {
+				...state,
+				shiftList: {
+					...state.shiftList,
+					[ action.shiftId ]: {
+						...state.shiftList[ action.shiftId ],
 						[ action.field ]: action.value
 					}
 				}
 			}
 		}
+		case REMOVE_SHIFT: {
+			const { [ action.shiftId ]: _, ...shiftList } = state.shiftList
+
+			return {
+				...state,
+				shiftList
+			}
+		}
 		case UPDATE_SHIFT_CREW: {
 			return {
 				...state,
-				shiftCrew: {
-					...state.shiftCrew,
-					[ action.day ]: {
-						...state.shiftCrew[ action.day ],
-						[ action.field ]: action.value
+				shiftList: {
+					...state.shiftList,
+					[ action.shiftId ]: {
+						...state.shiftList[ action.shiftId ],
+						crew: {
+							...state.shiftList[ action.shiftId ].crew,
+							[ action.dayName ]: action.value
+						}
 					}
 				}
 			}

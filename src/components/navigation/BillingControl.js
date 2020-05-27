@@ -31,10 +31,10 @@ const BillingControl = ( props ) => {
 				Rodzaj okresu rozliczeniowy:
 			</Col>
 			<Col sm={5} lg={4}>
-			<Form.Control as="select" value={ billingType } onChange={ (e) => dispatch( updateBillingType( e.target.value ) ) } custom>
-				<option value={"MONTH"}>Miesięczny</option>
-				<option value={"QUARTER"}>Kwartalny</option>
-			</Form.Control>
+				<Form.Control as="select" value={ billingType } onChange={ (e) => dispatch( updateBillingType( e.target.value ) ) } custom>
+					<option value={"MONTH"}>Miesięczny</option>
+					<option value={"QUARTER"}>Kwartalny</option>
+				</Form.Control>
 			</Col>
 		</Row>
 		<Row className="show-grid align-items-center mb-2">

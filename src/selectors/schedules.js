@@ -7,15 +7,20 @@ export const INVALID_FORMAT = "INVALID_FORMAT"
 export const SHIFT_FORMAT = "SHIFT_FORMAT"
 export const TIME_FORMAT = "TIME_FORMAT"
 
-const parseSchedule = ( schedule = null, { freeDays, maxWorkTime, minDailyBreak } ) => {
+const parseSchedule = ( schedule = null, { freeDays, shiftList, maxWorkTime, minDailyBreak } ) => {
 	if ( schedule === null ) {
 		return { }
 	}
 
 	let shifts = [ "W", "WS" ]
 	Object.entries( freeDays ).map( ([ dayName, freeDay ]) => {
-		if ( freeDay !== null ) {
+		if ( freeDay !== null && freeDay.index !== "" ) {
 			shifts.push( freeDay.index )
+		}
+	})
+	Object.entries( shiftList ).map( ([ shiftId, shift ]) => {
+		if( shift.index !== "" ) {
+			shifts.push( shift.index )
 		}
 	})
 
@@ -25,7 +30,6 @@ const parseSchedule = ( schedule = null, { freeDays, maxWorkTime, minDailyBreak 
 
 	let timeReg = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/;
 	if ( timeReg.test( schedule.begin ) && timeReg.test( schedule.cease ) ) {
-
 		return { format: TIME_FORMAT }
 	}
 
@@ -37,8 +41,8 @@ export const selectParsedSchedule = ( employeeId, date ) => {
 		state => state.schedules[ employeeId ]?.[ date ],
 		state => state.schedules[ employeeId ]?.[ moment( date ).subtract(1, 'day').format("YYYY-MM-DD") ],
 		state => state.settings,
-		( schedule, previousSchedule, { freeDays, maxWorkTime, minDailyBreak } ) => {
-			const localSettings = { freeDays, maxWorkTime, minDailyBreak }
+		( schedule, previousSchedule, { freeDays, shiftList, maxWorkTime, minDailyBreak } ) => {
+			const localSettings = { freeDays, shiftList, maxWorkTime, minDailyBreak }
 			const parsedSchedule = parseSchedule( schedule, localSettings )
 
 			if ( parsedSchedule.format === TIME_FORMAT ) {
@@ -49,7 +53,7 @@ export const selectParsedSchedule = ( employeeId, date ) => {
 				if ( workTime <= 0 ) workTime += 24;
 
 
-				parsedSchedule.workTime = moment.utc( moment.duration( workTime, 'hours' ).asMilliseconds() ).format("HH:mm")
+				parsedSchedule.workTime = moment.utc( moment.duration( workTime, 'hours' ).asMilliseconds() ).format("H:mm")
 				if ( workTime > moment.duration( maxWorkTime ).asHours() ) {
 					parsedSchedule.isMaxWorkTimeValid = false
 				}
@@ -80,12 +84,12 @@ export const selectWorkTimeDone = employeeId => {
 	return createSelector(
 		state => state.schedules[ employeeId ],
 		state => state.settings,
-		( employeeSchedules, { billingType, billingPeriod, freeDays, maxWorkTime, minDailyBreak } ) => {
+		( employeeSchedules, { billingType, billingPeriod, freeDays, shiftList, maxWorkTime, minDailyBreak } ) => {
 			let workTimeDone = 0
 
 			for ( let m = moment( billingPeriod ); m.isBefore( moment( billingPeriod ).add(1, billingType.toLowerCase()) ); m.add(1, 'days')) {
 				const schedule = employeeSchedules?.[ m.format("YYYY-MM-DD") ] || null
-				const parsedSchedule = parseSchedule( schedule, { freeDays, maxWorkTime, minDailyBreak } )
+				const parsedSchedule = parseSchedule( schedule, { freeDays, shiftList, maxWorkTime, minDailyBreak } )
 				if ( parsedSchedule.format === TIME_FORMAT ) {
 					let beginDate = moment(`${ schedule.date } ${ schedule.begin }`)
 					let ceaseDate = moment(`${ schedule.date } ${ schedule.cease }`)

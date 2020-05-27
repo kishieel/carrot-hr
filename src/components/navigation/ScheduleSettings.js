@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
-import { Button, Modal, Form, Container, Row, Col } from 'react-bootstrap'
+import { Button, Modal, Container } from 'react-bootstrap'
 import BillingControl from './BillingControl'
 import WorkTimeControl from './WorkTimeControl'
 import DailyBreakControl from './DailyBreakControl'
 import WeeklyBreakControl from './WeeklyBreakControl'
 import FreeDaysControl from './FreeDaysControl'
-import ShiftTimesControl from './ShiftTimesControl'
-import OpenningClossingControl from './OpenningClossingControl'
+import ShiftsControl from './ShiftsControl'
 import ShiftsCrewControl from './ShiftsCrewControl'
 
 const ScheduleSettings = ( props ) => {
@@ -27,8 +26,7 @@ const ScheduleSettings = ( props ) => {
 					<DailyBreakControl />
 					<WeeklyBreakControl /><hr/>
 					<FreeDaysControl /><hr />
-					<ShiftTimesControl />
-					<OpenningClossingControl /><hr />
+					<ShiftsControl />
 					<ShiftsCrewControl />
 				</Container>
 			</Modal.Body>
@@ -38,6 +36,7 @@ const ScheduleSettings = ( props ) => {
 		</Modal>
 	</>)
 }
+// <ShiftsCrewControl />
 
 
 export default ScheduleSettings
