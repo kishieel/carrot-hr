@@ -1,5 +1,5 @@
 import React from 'react'
-import ScheduleCell from './ScheduleCell'
+import ScheduleCellsGroup from './ScheduleCellsGroup'
 import { useSelector, useDispatch } from 'react-redux'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { selectDatesFromPeriod, selectWorkHours, selectFreeDays } from '../../selectors/settings'
@@ -71,6 +71,11 @@ const FreeDaysCell = ( props ) => {
 	</>)
 }
 
+const chunk = (arr, size) => Array.from(
+	{ length: Math.ceil(arr.length / size) },
+	(v, i) => arr.slice(i * size, i * size + size)
+);
+
 const ScheduleRow = React.memo( ( props ) => {
 	const dispatch = useDispatch()
 	const { rowNo, employeeId } = props
@@ -83,8 +88,8 @@ const ScheduleRow = React.memo( ( props ) => {
 			<th className="text-nowrap align-middle schedules__signature" onClick={ () => dispatch( showEmployeeSettings( true, employeeId )) }>{ employee?.signature }</th>
 			<WorkTimeCell employeeId={ employeeId } dates={ dates } />
 			<FreeDaysCell employeeId={ employeeId } dates={ dates } />
-			{ dates.map( (date) => {
-				return <ScheduleCell key={ `date-${date}` } date={date} employeeId={employeeId} />
+			{ chunk( dates, 7 ).map( ( week ) => {
+				return <ScheduleCellsGroup key={ `date-[${week.join('-')}]` } week={week} employeeId={employeeId} />
 			})}
 		</tr>
 	</>)
