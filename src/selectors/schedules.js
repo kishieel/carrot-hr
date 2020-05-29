@@ -89,19 +89,6 @@ export const selectDailySchedule = ( employeeId, date ) => createSelector(
 	}
 )
 
-export const selectWeekSchedulesValidation = ( employeeId, week ) => createSelector(
-	state => Object.entries( state.schedules[ employeeId ] || {} ).filter( ([ date, schedule ]) => week.includes( date )).map( ([ date, schedule ]) => { return schedule } ),
-	state => state.settings,
-	( schedules, { minWeeklyBreak } ) => {
-		schedules.sort( ( a,b ) => moment( a.date ) - moment( b.date ) )
-
-		week.map( date => {
-
-		})
-		return "CARROT"
-	}
-)
-
 export const selectWorkTimeState = ( employeeId ) => createSelector(
 	state => state.schedules[ employeeId ],
 	state => state.settings,
