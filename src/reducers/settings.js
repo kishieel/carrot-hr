@@ -60,7 +60,7 @@ const initialState = {
 			}
 		}
 	},
-	shiftNextId: 3
+	shiftNextId: 3,
 }
 
 const settingsReducer = ( state = initialState, action ) => {

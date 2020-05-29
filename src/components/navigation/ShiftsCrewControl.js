@@ -35,8 +35,6 @@ const ShiftsCrewControl = ( ) => {
 										{ [ ...Array(7).keys() ].map( dayNumber => {
 											let dayName = moment().weekday( dayNumber + 1 ).format("ddd").toLowerCase()
 
-											console.log( dayName )
-
 											return (
 												<td className="text-center w-10">
 													<Form.Control
