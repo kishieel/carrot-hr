@@ -11,7 +11,7 @@ const moment = require('moment')
 
 const ScheduleCell = React.memo( (props) => {
 	const dispatch = useDispatch()
-	const { employeeId, date } = props
+	const { employeeId, date, weekValidation } = props
 	const { timeLayer, absenceLayer } = useSelector( state => state.temporary )
 	const shiftList = useSelector( state => state.settings.shiftList )
 	const { schedule, validation } = useSelector( selectDailySchedule( employeeId, date ) )
@@ -46,6 +46,11 @@ const ScheduleCell = React.memo( (props) => {
 
 	if ( timeLayer === true ) {
 		controlsView = schedule?.workTime || ""
+	}
+
+	if ( weekValidation.status === false ) {
+		validation.status = false
+		validation.message += weekValidation.message
 	}
 
 	if ( validation.status === false ) {
