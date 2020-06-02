@@ -1,5 +1,6 @@
 export const UPDATE_SCHEDULE_ON_CHANGE = "UPDATE_SCHEDULE_ON_CHANGE"
 export const UPDATE_SCHEDULE_ON_BLUR = "UPDATE_SCHEDULE_ON_BLUR"
+export const GENERATE_SCHEDULES = "GENERATE_SCHEDULES"
 export const CLEAR_SCHEDULES = "CLEAR_SCHEDULES"
 
 export function updateScheduleOnChange( employeeId, date, field, value ) {
@@ -15,6 +16,10 @@ export function updateScheduleOnBlur( employeeId, date, field, value, shifts ) {
 		}
 	})
 	return { type: UPDATE_SCHEDULE_ON_BLUR, employeeId, date, field, value, shiftIndexes }
+}
+
+export function generateSchedules( employees, settings, holidayDates ) {
+	return { type: GENERATE_SCHEDULES, employees, settings, holidayDates }
 }
 
 export function clearSchedules( ) {

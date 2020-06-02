@@ -46,6 +46,10 @@ const ScheduleCell = React.memo( (props) => {
 
 	if ( timeLayer === true ) {
 		controlsView = schedule?.workTime || ""
+
+		if ( schedule.format === SHIFT_FORMAT ) {
+			controlsView = schedule?.begin
+		}
 	}
 
 	if ( weekValidation.status === false ) {

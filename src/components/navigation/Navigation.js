@@ -1,14 +1,16 @@
 import React from 'react'
 import { Navbar, Button } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import { clearSchedules } from '../../actions/schedules'
+import { clearSchedules, generateSchedules } from '../../actions/schedules'
 import { saveSchedules, loadSchedules } from '../../actions/default'
 import { changeLayer } from '../../actions/temporary'
 import ScheduleSettings from './ScheduleSettings'
 
 const Navigation = ( props ) => {
 	const dispatch = useDispatch()
-	const { timeLayer, absenceLayer } = useSelector( state => state.temporary )
+	const { timeLayer, absenceLayer, holidayDates } = useSelector( state => state.temporary )
+	const settings = useSelector( state => state.settings )
+	const { employeeList } = useSelector( state => state.employees )
 
 	let fileUploader = null
 	const handleOnLoaderChange = (e) => {
@@ -30,7 +32,7 @@ const Navigation = ( props ) => {
 				<ScheduleSettings />
 				<Button className="mr-2 mt-2 mt-lg-0" variant="outline-dark" onClick={ () => dispatch( saveSchedules() ) }><b> Zapisz </b></Button>
 				<Button className="mr-2 mr-lg-4 mt-2 mt-lg-0" variant="outline-dark" type="input" onClick={ () => { fileUploader.click() } }><b> Wczytaj </b></Button>
-				<Button className="mr-2 mt-2 mt-lg-0" variant="outline-success" onClick={ () => { } }><b> Generuj </b></Button>
+				<Button className="mr-2 mt-2 mt-lg-0" variant="outline-success" onClick={ () => dispatch( generateSchedules( employeeList, settings, holidayDates ) ) }><b> Generuj </b></Button>
 				<Button className="mr-2 mr-lg-4 mt-2 mt-lg-0" variant="outline-danger" onClick={ () => dispatch( clearSchedules() ) }><b> Wyczyść </b></Button>
 				<Button className="mr-2 mt-2 mt-lg-0 text-nowrap d-none" variant="outline-info" onClick={ () => dispatch( changeLayer( "absenceLayer", !absenceLayer) ) }><b>{ ( absenceLayer === false ) ? "Pokaż absencje" : "Ukryj absencje" }</b></Button>
 				<Button className="mr-2 mr-lg-4 mt-2 mt-lg-0 text-nowrap" variant="outline-info" onClick={ () => dispatch( changeLayer( "timeLayer", !timeLayer) ) }><b>{ ( timeLayer === false ) ? "Pokaż czas pracy" : "Ukryj czas pracy" }</b></Button>

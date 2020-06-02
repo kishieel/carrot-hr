@@ -1,9 +1,17 @@
 import {
 	UPDATE_SCHEDULE_ON_CHANGE,
 	UPDATE_SCHEDULE_ON_BLUR,
+	GENERATE_SCHEDULES,
 	CLEAR_SCHEDULES
 } from '../actions/schedules'
 import { REMOVE_EMPLOYEE } from '../actions/employees'
+import {
+	TIME_FORMAT,
+	parseSchedule,
+	selectWorkTimeStateRaw
+} from '../selectors/schedules'
+
+const moment = require('moment')
 
 const schedulesReducer = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -51,6 +59,121 @@ const schedulesReducer = ( state = {}, action ) => {
 
 			return state
 		}
+		case GENERATE_SCHEDULES: {
+			const { billingPeriod, billingType, freeDays, shiftList, minDailyBreak, maxWorkTime, minWeeklyBreak } = action.settings
+			const { employees, holidayDates } = action
+
+			Object.entries( employees ).map( ([ employeeId, employee ]) => {
+				employee.timeLeft = selectWorkTimeStateRaw( state, employee.timeContract, action.settings, { holidayDates } )
+			})
+
+			const schedules = { ...state }
+			for ( let m = moment( billingPeriod ); m.isBefore( moment( billingPeriod ).add(1, billingType.toLowerCase()) ); m.add(1, 'days')) {
+
+				if ( holidayDates.includes( m.format( "YYYY-MM-DD" ) ) ) {
+					Object.entries( employees ).map( ([ employeeId, employee ]) => {
+						schedules[ employeeId ] = schedules[ employeeId ] || {}
+						schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] = { employeeId, date: m.format( "YYYY-MM-DD" ), begin: "WS" }
+					})
+
+					continue
+				}
+
+				let freeDay = freeDays[ m.format( "ddd" ).toLowerCase() ]
+				if ( freeDay?.permanent === true ) {
+					Object.entries( employees ).map( ([ employeeId, employee ]) => {
+						schedules[ employeeId ] = schedules[ employeeId ] || {}
+						schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] = { employeeId, date: m.format( "YYYY-MM-DD" ), begin: freeDay.index }
+					})
+
+					continue
+				}
+
+				const availableEmployees = {}
+				Object.entries( { ...employees } ).filter( ([ employeeId, employee ]) => (
+					employee.timeLeft > 0
+				) ).map( ([ employeeId, employee ]) => {
+					availableEmployees[ employeeId ] = employee
+				} )
+
+				Object.entries( { ...employees } ).map( ([ employeeId, employee ]) => {
+					const schedule =  schedules[ employeeId ]?.[ m.format("YYYY-MM-DD") ]
+					if ( schedule?.preference === true ) {
+						if ( parseSchedule( schedule, action.settings ).format === TIME_FORMAT ) {
+							let scheduleBegin = moment(`${ schedule.date } ${ schedule.begin }`)
+							let scheduleCease = moment(`${ schedule.date } ${ schedule.cease }`)
+
+							let workTime = scheduleCease.diff( scheduleBegin, 'hours', true )
+							if ( workTime <= 0 ) workTime += 24;
+
+							employee.timeLeft -= workTime
+						}
+						delete availableEmployees[ employeeId]
+					}
+				} )
+
+				const availableManagers = {}
+				Object.entries( availableEmployees ).filter( ([ employeeId, employee ]) => (
+					employee.role === "KIEROWNIK"
+				) ).map( ([ employeeId, employee ]) => {
+					availableManagers[ employeeId ] = employee
+					delete availableEmployees[ employeeId ]
+				} )
+
+				const dailySchedules = {}
+				Object.entries( shiftList ).map( ([ shiftId, shift ]) => {
+					dailySchedules[ shiftId ] = []
+
+					if ( Object.keys( availableManagers ).length > 0 && shift.requireManager === true ) {
+						const [ employeeId, employee ] = getMostBored( availableManagers )
+						delete availableManagers[ employeeId ]
+
+						let shiftBegin = moment(`${ m.format("YYYY-MM-DD") } ${ shift.begin }`)
+						let shiftCease = moment(`${ m.format("YYYY-MM-DD") } ${ shift.cease }`)
+
+						let workTime = shiftCease.diff( shiftBegin, 'hours', true )
+						if ( workTime <= 0 ) workTime += 24;
+
+						employees[ employeeId ].timeLeft -= workTime
+						dailySchedules[ shiftId ].push( { employeeId, date: m.format("YYYY-MM-DD"), begin: shift.begin, cease: shift.cease } )
+					}
+				})
+
+				Object.entries( availableManagers ).map( ([ employeeId, employee ]) => {
+					availableEmployees[ employeeId ] = employee
+				})
+
+				Object.entries( shiftList ).map( ([ shiftId, shift ]) => {
+					while ( Object.keys( availableEmployees ).length > 0 && dailySchedules[ shiftId ].length < shift.crew[ m.format("ddd").toLowerCase() ] ) {
+						const [ employeeId, employee ] = getMostBored( availableEmployees )
+						delete availableEmployees[ employeeId ]
+
+						let shiftBegin = moment(`${ m.format("YYYY-MM-DD") } ${ shift.begin }`)
+						let shiftCease = moment(`${ m.format("YYYY-MM-DD") } ${ shift.cease }`)
+
+						let workTime = shiftCease.diff( shiftBegin, 'hours', true )
+						if ( workTime <= 0 ) workTime += 24;
+
+						employees[ employeeId ].timeLeft -= workTime
+						dailySchedules[ shiftId ].push( { employeeId, date: m.format("YYYY-MM-DD"), begin: shift.begin, cease: shift.cease } )
+
+					}
+				})
+
+				Object.entries( dailySchedules ).map( ([ shiftId, dailySchedule ]) => {
+					// console.log( dailySchedule )
+					for ( const schedule of dailySchedule ) {
+						schedules[ schedule.employeeId ] = schedules[ schedule.employeeId ] || {}
+						schedules[ schedule.employeeId ][ schedule.date ] = schedule
+					}
+				})
+				// console.log( employees )
+
+				// break
+			}
+
+			return schedules
+		}
 		case CLEAR_SCHEDULES: {
 			return { }
 		}
@@ -62,6 +185,18 @@ const schedulesReducer = ( state = {}, action ) => {
 		default:
 			return state
 	}
+}
+
+const getMostBored = ( employees ) => {
+	let mostBoredId = Object.keys( employees )[0]
+	let mostBored = employees[ mostBoredId ]
+	Object.entries( employees ).map( ([ employeeId, employee ]) => {
+		if ( mostBored.timeLeft / mostBored.timeContract < employee.timeLeft / employee.timeContract ) {
+			mostBoredId = employeeId
+			mostBored = employee;
+		}
+	})
+	return [ mostBoredId, mostBored ]
 }
 
 export default schedulesReducer

@@ -89,39 +89,46 @@ export const selectDailySchedule = ( employeeId, date ) => createSelector(
 	}
 )
 
-export const selectWorkTimeState = ( employeeId ) => createSelector(
-	state => state.schedules[ employeeId ],
-	state => state.settings,
-	state => state.temporary,
-	( schedules, { billingPeriod, billingType, freeDays, shiftList, maxWorkTime, minDailyBreak }, { holidayDates } ) => {
-		let workTimeState = 0
-		for ( let m = moment( billingPeriod ); m.isBefore( moment( billingPeriod ).add(1, billingType.toLowerCase()) ); m.add(1, 'days')) {
-			let dayName = m.format("ddd").toLowerCase()
-			let freeDay = freeDays[ dayName ] || null
+export const selectWorkTimeStateRaw = ( schedules, timeContract, { billingPeriod, billingType, freeDays, shiftList }, { holidayDates } ) => {
+	let workTimeState = 0
+	for ( let m = moment( billingPeriod ); m.isBefore( moment( billingPeriod ).add(1, billingType.toLowerCase()) ); m.add(1, 'days')) {
+		let dayName = m.format("ddd").toLowerCase()
+		let freeDay = freeDays[ dayName ] || null
 
-			if ( freeDay === null ) {
-				workTimeState += 8
-			}
-
-			if ( dayName !== "sun" && holidayDates.includes( m.format("YYYY-MM-DD") ) ) {
-				workTimeState -= 8
-			}
+		if ( freeDay === null ) {
+			workTimeState += 8
 		}
 
-		Object.entries( schedules || {} ).map( ([ date, schedule ]) => {
-			const parsedSchedule = parseSchedule( schedule, { freeDays, shiftList } )
-			if ( parsedSchedule.format === TIME_FORMAT ) {
-				let beginDate = moment(`${ schedule.date } ${ schedule.begin }`)
-				let ceaseDate = moment(`${ schedule.date } ${ schedule.cease }`)
+		if ( dayName !== "sun" && holidayDates.includes( m.format("YYYY-MM-DD") ) ) {
+			workTimeState -= 8
+		}
+	}
 
-				let workTime = ceaseDate.diff( beginDate, 'hours', true )
-				if ( workTime <= 0 ) workTime += 24;
+	workTimeState *= timeContract
 
-				workTimeState -= workTime
-			}
-		})
+	Object.entries( schedules || {} ).map( ([ date, schedule ]) => {
+		const parsedSchedule = parseSchedule( schedule, { freeDays, shiftList } )
+		if ( parsedSchedule.format === TIME_FORMAT ) {
+			let beginDate = moment(`${ schedule.date } ${ schedule.begin }`)
+			let ceaseDate = moment(`${ schedule.date } ${ schedule.cease }`)
 
-		return workTimeState
+			let workTime = ceaseDate.diff( beginDate, 'hours', true )
+			if ( workTime <= 0 ) workTime += 24;
+
+			workTimeState -= workTime
+		}
+	})
+
+	return workTimeState
+}
+
+export const selectWorkTimeState = ( employeeId ) => createSelector(
+	state => state.schedules[ employeeId ],
+	state => state.employees.employeeList[ employeeId ].timeContract,
+	state => state.settings,
+	state => state.temporary,
+	( schedules, timeContract, { billingPeriod, billingType, freeDays, shiftList }, { holidayDates } ) => {
+		return selectWorkTimeStateRaw( schedules, timeContract, { billingPeriod, billingType, freeDays, shiftList }, { holidayDates } )
 	}
 )
 
