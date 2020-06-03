@@ -132,32 +132,36 @@ export const selectWorkTimeState = ( employeeId ) => createSelector(
 	}
 )
 
+export const selectFreeDaysStateRaw = ( schedules, { billingPeriod, billingType, freeDays } ) => {
+	let freeDaysState = { }
+	let freeDaysIndexes = []
+	for ( let m = moment( billingPeriod ); m.isBefore( moment( billingPeriod ).add(1, billingType.toLowerCase()) ); m.add(1, 'days')) {
+		let dayName = m.format("ddd").toLowerCase()
+		let freeDay = freeDays[ dayName ]
+		if ( freeDay !== null ) {
+			let freeDayIndex = freeDay.index
+			if ( freeDaysState[ freeDayIndex ] === undefined ) {
+				freeDaysState[ freeDayIndex ] = 0
+				freeDaysIndexes.push( freeDayIndex )
+			}
+			freeDaysState[ freeDayIndex ] += 1
+		}
+	}
+
+	Object.entries( schedules || {} ).map( ([ date, schedule ]) => {
+		let freeDayIndex = schedule.begin
+		if ( freeDaysIndexes.includes( freeDayIndex ) ) {
+			freeDaysState[ freeDayIndex ] -= 1
+		}
+	})
+
+	return freeDaysState
+}
+
 export const selectFreeDaysState = ( employeeId ) => createSelector(
 	state => state.schedules[ employeeId ],
 	state => state.settings,
 	( schedules, { billingPeriod, billingType, freeDays } ) => {
-		let freeDaysState = { }
-		let freeDaysIndexes = []
-		for ( let m = moment( billingPeriod ); m.isBefore( moment( billingPeriod ).add(1, billingType.toLowerCase()) ); m.add(1, 'days')) {
-			let dayName = m.format("ddd").toLowerCase()
-			let freeDay = freeDays[ dayName ]
-			if ( freeDay !== null ) {
-				let freeDayIndex = freeDay.index
-				if ( freeDaysState[ freeDayIndex ] === undefined ) {
-					freeDaysState[ freeDayIndex ] = 0
-					freeDaysIndexes.push( freeDayIndex )
-				}
-				freeDaysState[ freeDayIndex ] += 1
-			}
-		}
-
-		Object.entries( schedules || {} ).map( ([ date, schedule ]) => {
-			let freeDayIndex = schedule.begin
-			if ( freeDaysIndexes.includes( freeDayIndex ) ) {
-				freeDaysState[ freeDayIndex ] -= 1
-			}
-		})
-
-		return freeDaysState
+		return selectFreeDaysStateRaw( schedules, { billingPeriod, billingType, freeDays } )
 	}
 )

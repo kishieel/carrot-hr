@@ -12,7 +12,7 @@ const moment = require('moment')
 const ScheduleCell = React.memo( (props) => {
 	const dispatch = useDispatch()
 	const { employeeId, date, weekValidation } = props
-	const { timeLayer, absenceLayer } = useSelector( state => state.temporary )
+	const { timeLayer, absenceLayer, holidayDates } = useSelector( state => state.temporary )
 	const shiftList = useSelector( state => state.settings.shiftList )
 	const { schedule, validation } = useSelector( selectDailySchedule( employeeId, date ) )
 
@@ -22,6 +22,14 @@ const ScheduleCell = React.memo( (props) => {
 
 	if ( moment( date ).format("ddd").toLowerCase() === "sun" ) {
 		tdClassName += " schedules__field--sunday"
+	}
+
+	if( holidayDates.includes( date ) ) {
+		tdClassName += " schedules__field--holiday"
+	}
+
+	if ( schedule.preference === true ) {
+		tdClassName += " schedules__field--preference"
 	}
 
 	if ( schedule.format === SHIFT_FORMAT ) {

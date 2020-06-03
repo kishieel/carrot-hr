@@ -43,6 +43,15 @@
 			color: white;
 		}
 
+		@at-root #{&}--holiday {
+			background: transparentize($yellow, .3);
+		}
+
+		@at-root #{&}--preference {
+			background: transparentize($purple, .3);
+			color: white;
+		}
+
 		@at-root #{&}--danger {
 			background: transparentize($yellow, .3);
 			color: white;

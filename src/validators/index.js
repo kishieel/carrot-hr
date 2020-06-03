@@ -9,45 +9,44 @@ const moment = require('moment')
 export const validWeeklySchedule = ( employeeId, week ) => createSelector(
 	state => state.schedules[ employeeId ],
 	state => state.settings,
-	( schedules, { freeDays, shiftList, minWeeklyBreak } ) => {
+	( employeeSchedules, { freeDays, shiftList, minWeeklyBreak } ) => {
 		const validation = { status: true, message: "" }
 
+		let isWeeklyBreak = true
 		const weekSchedules = {}
 
-		Object.entries( schedules || {} ).filter( ([ date, schedule ]) => week.includes( date )).map( ([ date, schedule ]) => {
-			weekSchedules[ date ] = schedule
-		} )
+		for ( let m = moment( week[0] ); m.isBefore( moment( week[ week.length - 1 ] ).add(1, 'days') ); m.add(1, 'days') ) {
+			if ( m.format("ddd").toLowerCase() === "sun" ) {
+				const previousDate = m.clone().subtract(1, 'days').format("YYYY-MM-DD")
+				const nextDate = m.clone().add(1, 'days').format("YYYY-MM-DD")
 
-		let schedule = null
-		let previousScheduleCease = moment(`${ week[0] } 0:00`)
-		let isWeeklyBreak = false
-		week.map( date => {
-			if ( schedule !== null ) {
-				if ( parseSchedule( schedule, { freeDays, shiftList } ).format === TIME_FORMAT ) {
-					previousScheduleCease = moment( `${ schedule.date } ${ schedule.cease }` )
+				const previousSchedule = employeeSchedules?.[ previousDate ]
+				const nextSchedule = employeeSchedules?.[ nextDate ]
 
-					let previousScheduleBegin = moment( `${ schedule.date } ${ schedule.cease }` )
-					if ( previousScheduleCease.diff( previousScheduleBegin ) < 0 ) {
+				let previousScheduleCease = moment(`${ previousDate } 0:00`)
+				let nextScheduleBegin = moment(`${ nextDate } 24:00`)
+
+				if ( parseSchedule( previousSchedule, { freeDays, shiftList } ).format === TIME_FORMAT ) {
+					let previousScheduleBegin = moment(`${ previousDate } ${ previousSchedule.begin }`)
+					previousScheduleCease = moment(`${ previousDate } ${ previousSchedule.cease }`)
+
+					let workTime = previousScheduleCease.diff( previousScheduleBegin, 'hours', true )
+					if ( workTime <= 0 ) {
 						previousScheduleCease.add(1, 'days')
 					}
 				}
-			}
 
-			schedule = weekSchedules[ date ] || null
-			if ( date !== week[0] ) {
-				let currentScheduleBegin = null
-				if ( parseSchedule( schedule, { freeDays, shiftList } ).format === TIME_FORMAT ) {
-					currentScheduleBegin = moment( `${ schedule.date } ${ schedule.begin }` )
-				} else {
-					currentScheduleBegin = moment( `${ date } 24:00` )
+				if ( parseSchedule( nextSchedule, { freeDays, shiftList } ).format === TIME_FORMAT ) {
+					nextScheduleBegin = moment(`${ nextDate } ${ nextSchedule.begin }`)
 				}
 
-				let diff = currentScheduleBegin.diff( previousScheduleCease, 'hours', true )
-				if ( diff > moment.duration( minWeeklyBreak ).asHours() ) {
-					isWeeklyBreak = true
+				let diff = nextScheduleBegin.diff( previousScheduleCease, 'hours', true )
+				if ( diff <= moment.duration( minWeeklyBreak ).asHours() ) {
+					isWeeklyBreak = false
+					break
 				}
 			}
-		})
+		}
 
 		if ( isWeeklyBreak === false ) {
 			validation.status = false

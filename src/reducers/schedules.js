@@ -8,7 +8,8 @@ import { REMOVE_EMPLOYEE } from '../actions/employees'
 import {
 	TIME_FORMAT,
 	parseSchedule,
-	selectWorkTimeStateRaw
+	selectWorkTimeStateRaw,
+	selectFreeDaysStateRaw
 } from '../selectors/schedules'
 
 const moment = require('moment')
@@ -62,18 +63,32 @@ const schedulesReducer = ( state = {}, action ) => {
 		case GENERATE_SCHEDULES: {
 			const { billingPeriod, billingType, freeDays, shiftList, minDailyBreak, maxWorkTime, minWeeklyBreak } = action.settings
 			const { employees, holidayDates } = action
+			const schedules = { ...state }
+
+			console.log( schedules )
 
 			Object.entries( employees ).map( ([ employeeId, employee ]) => {
-				employee.timeLeft = selectWorkTimeStateRaw( state, employee.timeContract, action.settings, { holidayDates } )
+				const employeeSchedules = {}
+				Object.entries( schedules[ employeeId ] || {} ).map( ([ date, schedule ]) => {
+					if ( schedule.preference === true ) {
+						employeeSchedules[ date ] = schedule
+					}
+				})
+
+				employee.timeLeft = selectWorkTimeStateRaw( employeeSchedules, employee.timeContract, action.settings, { holidayDates } )
+				employee.freeDays = selectFreeDaysStateRaw( employeeSchedules, { billingPeriod, billingType, freeDays } )
 			})
 
-			const schedules = { ...state }
+			console.log( employees )
+
 			for ( let m = moment( billingPeriod ); m.isBefore( moment( billingPeriod ).add(1, billingType.toLowerCase()) ); m.add(1, 'days')) {
 
 				if ( holidayDates.includes( m.format( "YYYY-MM-DD" ) ) ) {
 					Object.entries( employees ).map( ([ employeeId, employee ]) => {
-						schedules[ employeeId ] = schedules[ employeeId ] || {}
-						schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] = { employeeId, date: m.format( "YYYY-MM-DD" ), begin: "WS" }
+						if ( schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] === undefined ) {
+							schedules[ employeeId ] = schedules[ employeeId ] || {}
+							schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] = { employeeId, date: m.format( "YYYY-MM-DD" ), begin: "WS" }
+						}
 					})
 
 					continue
@@ -82,18 +97,23 @@ const schedulesReducer = ( state = {}, action ) => {
 				let freeDay = freeDays[ m.format( "ddd" ).toLowerCase() ]
 				if ( freeDay?.permanent === true ) {
 					Object.entries( employees ).map( ([ employeeId, employee ]) => {
-						schedules[ employeeId ] = schedules[ employeeId ] || {}
-						schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] = { employeeId, date: m.format( "YYYY-MM-DD" ), begin: freeDay.index }
+						if ( schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] === undefined ) {
+							schedules[ employeeId ] = schedules[ employeeId ] || {}
+							schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] = { employeeId, date: m.format( "YYYY-MM-DD" ), begin: freeDay.index }
+						}
 					})
 
 					continue
 				}
 
 				const availableEmployees = {}
-				Object.entries( { ...employees } ).filter( ([ employeeId, employee ]) => (
-					employee.timeLeft > 0
-				) ).map( ([ employeeId, employee ]) => {
-					availableEmployees[ employeeId ] = employee
+				const unavailableEmployees = {}
+				Object.entries( { ...employees } ).map( ([ employeeId, employee ]) => {
+					if ( employee.timeLeft > 0 ) {
+						availableEmployees[ employeeId ] = employee
+					} else {
+						unavailableEmployees[ employeeId ] = employee
+					}
 				} )
 
 				Object.entries( { ...employees } ).map( ([ employeeId, employee ]) => {
@@ -161,18 +181,26 @@ const schedulesReducer = ( state = {}, action ) => {
 				})
 
 				Object.entries( dailySchedules ).map( ([ shiftId, dailySchedule ]) => {
-					// console.log( dailySchedule )
 					for ( const schedule of dailySchedule ) {
 						schedules[ schedule.employeeId ] = schedules[ schedule.employeeId ] || {}
 						schedules[ schedule.employeeId ][ schedule.date ] = schedule
 					}
 				})
-				// console.log( employees )
 
-				// break
+				Object.entries( availableEmployees ).map( ([ employeeId, employee ]) => {
+					unavailableEmployees[ employeeId ] = employee
+					delete availableEmployees[ employeeId ]
+				} )
+
+				Object.entries( unavailableEmployees ).map( ([ employeeId, employee ]) => {
+					schedules[ employeeId ] = schedules[ employeeId ] || {}
+					schedules[ employeeId ][ m.format("YYYY-MM-DD") ] = { employeeId, date: m.format("YYYY-MM-DD"), begin: "W" }
+					delete unavailableEmployees[ employeeId ]
+				} )
 			}
 
-			return schedules
+			let schedulesRefCleaned = JSON.parse( JSON.stringify( schedules ) )
+			return { ...schedulesRefCleaned }
 		}
 		case CLEAR_SCHEDULES: {
 			return { }
