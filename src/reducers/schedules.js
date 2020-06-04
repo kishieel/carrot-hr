@@ -65,8 +65,6 @@ const schedulesReducer = ( state = {}, action ) => {
 			const { employees, holidayDates } = action
 			const schedules = { ...state }
 
-			console.log( schedules )
-
 			Object.entries( employees ).map( ([ employeeId, employee ]) => {
 				const employeeSchedules = {}
 				Object.entries( schedules[ employeeId ] || {} ).map( ([ date, schedule ]) => {
@@ -79,13 +77,11 @@ const schedulesReducer = ( state = {}, action ) => {
 				employee.freeDays = selectFreeDaysStateRaw( employeeSchedules, { billingPeriod, billingType, freeDays } )
 			})
 
-			console.log( employees )
-
 			for ( let m = moment( billingPeriod ); m.isBefore( moment( billingPeriod ).add(1, billingType.toLowerCase()) ); m.add(1, 'days')) {
 
 				if ( holidayDates.includes( m.format( "YYYY-MM-DD" ) ) ) {
 					Object.entries( employees ).map( ([ employeeId, employee ]) => {
-						if ( schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] === undefined ) {
+						if ( schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] === undefined || schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ].preference !== true  ) {
 							schedules[ employeeId ] = schedules[ employeeId ] || {}
 							schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] = { employeeId, date: m.format( "YYYY-MM-DD" ), begin: "WS" }
 						}
@@ -97,14 +93,18 @@ const schedulesReducer = ( state = {}, action ) => {
 				let freeDay = freeDays[ m.format( "ddd" ).toLowerCase() ]
 				if ( freeDay?.permanent === true ) {
 					Object.entries( employees ).map( ([ employeeId, employee ]) => {
-						if ( schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] === undefined ) {
+						if ( schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] === undefined || schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ].preference !== true ) {
 							schedules[ employeeId ] = schedules[ employeeId ] || {}
 							schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] = { employeeId, date: m.format( "YYYY-MM-DD" ), begin: freeDay.index }
+							employees[ employeeId ].freeDays[ freeDay.index ] -= 1
+							console.log( employees[ employeeId ].freeDays[ freeDay.index ] )
 						}
 					})
 
 					continue
 				}
+
+				// console.log()
 
 				const availableEmployees = {}
 				const unavailableEmployees = {}
@@ -198,6 +198,28 @@ const schedulesReducer = ( state = {}, action ) => {
 					delete unavailableEmployees[ employeeId ]
 				} )
 			}
+
+			Object.entries( employees ).map( ([ employeeId, employee ]) => {
+				Object.entries( employee.freeDays ).map( ([ freeDayIndex, freeDay ]) => {
+					const freeSchedules = {}
+					const freeDates = []
+					Object.entries( schedules[ employeeId ] ).filter( ([ date, schedule ]) => (
+						schedule.begin === "W"
+					) ).map( ([ date, schedule ]) => {
+						freeSchedules[ date ] = schedule
+						freeDates.push( date )
+					} )
+
+					while ( freeDates.length > 0 && freeDay > 0 ) {
+						const schedule = freeSchedules[ freeDates.splice( Math.floor( Math.random() * freeDates.length ), 1 ) ]
+						schedules[ schedule.employeeId ] = schedules[ schedule.employeeId ] || {}
+						schedules[ schedule.employeeId ][ schedule.date ].begin = freeDayIndex
+						freeDay -= 1
+					}
+				} )
+
+				// Teraz mozna wydać pozostałe godziny pracy lub uszczuplic obecne jesli jest za duzo
+			} )
 
 			let schedulesRefCleaned = JSON.parse( JSON.stringify( schedules ) )
 			return { ...schedulesRefCleaned }
