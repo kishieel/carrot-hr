@@ -97,14 +97,11 @@ const schedulesReducer = ( state = {}, action ) => {
 							schedules[ employeeId ] = schedules[ employeeId ] || {}
 							schedules[ employeeId ][ m.format( "YYYY-MM-DD" ) ] = { employeeId, date: m.format( "YYYY-MM-DD" ), begin: freeDay.index }
 							employees[ employeeId ].freeDays[ freeDay.index ] -= 1
-							console.log( employees[ employeeId ].freeDays[ freeDay.index ] )
 						}
 					})
 
 					continue
 				}
-
-				// console.log()
 
 				const availableEmployees = {}
 				const unavailableEmployees = {}
@@ -218,7 +215,68 @@ const schedulesReducer = ( state = {}, action ) => {
 					}
 				} )
 
-				// Teraz mozna wydać pozostałe godziny pracy lub uszczuplic obecne jesli jest za duzo
+				let employeeSchedulesDates = []
+				Object.entries( schedules[ employeeId ] ).filter( ([ date, schedule ]) => (
+					parseSchedule( schedule, action.settings ).format === TIME_FORMAT
+				) ).map( ([ date, schedule ]) => {
+						employeeSchedulesDates.push( date )
+				})
+
+				// while ( employee.timeLeft > 8 && employeeSchedulesDates.length > 0 ) {
+				//
+				// }
+
+				while ( employee.timeLeft > 0 && employeeSchedulesDates.length > 0 ) {
+					let randomScheduleDate = employeeSchedulesDates.splice( Math.floor( Math.random() * employeeSchedulesDates.length ), 1 )
+
+					const scheduleBegin = moment( `${ randomScheduleDate } ${ schedules[ employeeId ][ randomScheduleDate ].begin }` )
+					const scheduleCease = moment( `${ randomScheduleDate } ${ schedules[ employeeId ][ randomScheduleDate ].cease }` )
+					let diff = scheduleCease.diff( scheduleBegin, 'hours', true )
+					if ( diff < 0 ) {
+						diff += 24
+					}
+
+					let timeToAdd = 0.5
+					if ( diff > timeToAdd ) {
+						if ( Math.abs( employee.timeLeft ) < timeToAdd ) {
+							timeToAdd = Math.abs( employee.timeLeft )
+						}
+
+						schedules[ employeeId ][ randomScheduleDate ].cease = scheduleCease.add( timeToAdd, 'hours' ).format( "H:mm" )
+						employee.timeLeft -= timeToAdd
+					}
+				}
+
+				while ( employee.timeLeft < 0 && employeeSchedulesDates.length > 0 ) {
+					let randomScheduleDate = employeeSchedulesDates.splice( Math.floor( Math.random() * employeeSchedulesDates.length ), 1 )
+
+					const scheduleBegin = moment( `${ randomScheduleDate } ${ schedules[ employeeId ][ randomScheduleDate ].begin }` )
+					const scheduleCease = moment( `${ randomScheduleDate } ${ schedules[ employeeId ][ randomScheduleDate ].cease }` )
+					let diff = scheduleCease.diff( scheduleBegin, 'hours', true )
+					if ( diff < 0 ) {
+						diff += 24
+					}
+
+					let timeToBack = 0.5
+					if ( diff > timeToBack ) {
+						if ( Math.abs( employee.timeLeft ) < timeToBack ) {
+							timeToBack = Math.abs( employee.timeLeft )
+						}
+
+						schedules[ employeeId ][ randomScheduleDate ].cease = scheduleCease.subtract( timeToBack, 'hours' ).format( "H:mm" )
+						employee.timeLeft += timeToBack
+					}
+
+				}
+
+
+
+				// if ( employee.timeLeft > 8 ) {
+				// 	// wydawac całymi schedulami
+				// } else if ( employee.timeLeft > 0 && employee.timeLeft <= 8 ) {
+				// 	// dopisywac po 15 min na zakonczenie
+				// }
+
 			} )
 
 			let schedulesRefCleaned = JSON.parse( JSON.stringify( schedules ) )
