@@ -196,10 +196,11 @@ const schedulesReducer = ( state = {}, action ) => {
 				} )
 			}
 
+
 			Object.entries( employees ).map( ([ employeeId, employee ]) => {
+				const freeSchedules = {}
+				const freeDates = []
 				Object.entries( employee.freeDays ).map( ([ freeDayIndex, freeDay ]) => {
-					const freeSchedules = {}
-					const freeDates = []
 					Object.entries( schedules[ employeeId ] ).filter( ([ date, schedule ]) => (
 						schedule.begin === "W"
 					) ).map( ([ date, schedule ]) => {
@@ -215,16 +216,20 @@ const schedulesReducer = ( state = {}, action ) => {
 					}
 				} )
 
+				// while ( employee.timeLeft > 8 && freeDates.length > 0 ) {
+				// 	let randomFreeDate = freeDates.splice( Math.floor( Math.random() * freeDates.length ), 1 )
+				// 	console.log( employeeId, randomFreeDate, freeDates )
+				// 	schedules[ employeeId ][ randomFreeDate ].begin = "10:00"
+				// 	schedules[ employeeId ][ randomFreeDate ].cease = "20:00"
+				// 	employee.timeLeft -= 10
+				// }
+
 				let employeeSchedulesDates = []
 				Object.entries( schedules[ employeeId ] ).filter( ([ date, schedule ]) => (
 					parseSchedule( schedule, action.settings ).format === TIME_FORMAT
 				) ).map( ([ date, schedule ]) => {
 						employeeSchedulesDates.push( date )
 				})
-
-				// while ( employee.timeLeft > 8 && employeeSchedulesDates.length > 0 ) {
-				//
-				// }
 
 				while ( employee.timeLeft > 0 && employeeSchedulesDates.length > 0 ) {
 					let randomScheduleDate = employeeSchedulesDates.splice( Math.floor( Math.random() * employeeSchedulesDates.length ), 1 )

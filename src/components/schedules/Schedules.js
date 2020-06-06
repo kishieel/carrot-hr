@@ -1,5 +1,6 @@
 import React from 'react'
 import ScheduleRow from './ScheduleRow'
+import SchedulesColHeader from './SchedulesColHeader'
 import { Table, Form } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux';
 import { createEmployee } from '../../actions/employees'
@@ -27,13 +28,7 @@ const Schedules = ( props ) => {
 					<th className="schedules__signature">Pracownik</th>
 					<th>Godz.</th>
 					<th>Dw.</th>
-					{ dates.map( (date) => {
-						let m = moment(date)
-						return (<th key={ m.format('DD-MM') } className="text-nowrap text-center p-0">
-							<span className="px-3">{ m.format('DD-MM') }</span><hr className="m-0"/>
-							<span className="px-3">{ m.locale('pl').format('dd').toUpperCase() }</span>
-						</th>)
-					})}
+					{ dates.map( (date) => <SchedulesColHeader date={ date } /> )}
 				</tr>
 			</thead>
 			<tbody>

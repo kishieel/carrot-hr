@@ -92,3 +92,37 @@ export const validWorkTime = ( workTime ) => {
 
 	return validation
 }
+
+export const validDailyCrew = ( date ) => createSelector(
+	state => state.schedules,
+	state => state.settings,
+	( schedules, { billingPeriod, billingType, shiftList } ) => {
+		const validation = { status: true, message: "" }
+
+		let dailyCrew = {}
+		Object.entries( schedules ).map( ([ employeeId, employeeSchedules ]) => {
+			const [ dateId, employeeSchedule ] = Object.entries( employeeSchedules ).find( ([ dateId, schedule ]) =>	schedule.date === date ) || [ null, null ]
+
+			Object.entries( shiftList ).map( ([ shiftId, shift ]) => {
+				if ( employeeSchedule?.begin === shift.begin ) {
+					if ( dailyCrew[ shiftId ] === undefined ) {
+						dailyCrew[ shiftId ] = 0
+					}
+					dailyCrew[ shiftId ] += 1
+				}
+			})
+		})
+
+		Object.entries( shiftList ).map( ([ shiftId, shift ]) => {
+			let requiredCrewAmount = shift.crew[ moment( date ).format( "ddd" ).toLowerCase() ]
+			let employeeAmount = dailyCrew[ shiftId ] || 0
+
+			if ( employeeAmount < requiredCrewAmount ) {
+				validation.status = false
+				validation.message += `Brakuje ${ requiredCrewAmount - employeeAmount } pracowników na zmianie "${ shiftList[ shiftId ].name }"\n`
+			}
+		} )
+
+		return validation
+	}
+)

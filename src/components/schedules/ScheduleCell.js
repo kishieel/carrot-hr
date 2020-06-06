@@ -71,7 +71,7 @@ const ScheduleCell = React.memo( (props) => {
 
 	return (<>
 		<OverlayTrigger overlay={
-			<Tooltip className={ ( validation.status === false ) ? "" : "d-none" }> { validation.message } </Tooltip>
+			<Tooltip className={ ( validation.status === false ) ? "" : "d-none" } style={{ whiteSpace: "pre-line" }}> { validation.message } </Tooltip>
 		}>
 			<td className={ tdClassName }>
 				{ controlsView }

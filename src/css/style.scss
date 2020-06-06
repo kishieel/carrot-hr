@@ -6,6 +6,11 @@
 	cursor: pointer;
 }
 
+.tooltip-inner {
+	// width: 300px !important;
+	max-width: 90vw !important;
+}
+
 #root {
 	display: flex;
 	flex-flow: column;

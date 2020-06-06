@@ -12,7 +12,7 @@ const WorkTimeStateCell = React.memo( ( props ) => {
 	if ( validation.status === false ) {
 		return (<>
 			<OverlayTrigger overlay={
-				<Tooltip> { validation.message } </Tooltip>
+				<Tooltip style={{ whiteSpace: "pre-line" }}> { validation.message } </Tooltip>
 			}>
 				<th className="text-center align-middle schedules__field--warning">{ Math.floor( workTime * 100 ) / 100 }</th>
 			</OverlayTrigger>

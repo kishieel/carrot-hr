@@ -12,7 +12,7 @@ const FreeDaysStateCell = React.memo( ( props ) => {
 	if ( validation.status === false ) {
 		return (<>
 			<OverlayTrigger overlay={
-				<Tooltip style={{ whiteSpace: "pre-wrap" }}> { validation.message } </Tooltip>
+				<Tooltip style={{ whiteSpace: "pre-line" }}> { validation.message } </Tooltip>
 			}>
 				<th className="text-center align-middle schedules__field--warning">&#10008;</th>
 			</OverlayTrigger>
